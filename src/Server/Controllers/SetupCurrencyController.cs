@@ -2,6 +2,7 @@
 using AzureApp.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 
 namespace AzureApp.Server.Controllers
 {
@@ -50,13 +51,15 @@ namespace AzureApp.Server.Controllers
             if (_dbset is null)
                 return StatusCode(500, Array.Empty<SetupCurrency>());
 
+            model.Code = model.Code.ToUpper().Trim();
+
             var item = await _dbset.FindAsync(model.Code);
             if (item is not null)
             {
                 ModelState.AddModelError(nameof(item.Code), "Item already exists");
-                return ValidationProblem();
+                return BadRequest(ModelState);
             }
-
+            
             await _dbset.AddAsync(model);
             await _context.SaveChangesAsync();
             return Ok();
@@ -68,11 +71,13 @@ namespace AzureApp.Server.Controllers
             if (_dbset is null)
                 return StatusCode(500, Array.Empty<SetupCurrency>());
 
+            model.Code = model.Code.ToUpper().Trim();
+
             var item = await _dbset.FindAsync(model.Code);
             if (item is null)
             {
                 ModelState.AddModelError(nameof(item.Code), "Item does not exist");
-                return ValidationProblem();
+                return BadRequest(ModelState);
             }
 
             _context.Entry(model).State = EntityState.Modified;
