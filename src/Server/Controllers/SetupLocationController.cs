@@ -8,17 +8,17 @@ namespace AzureApp.Server.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class SetupCurrencyController : ControllerBase
+    public class SetupLocationController : ControllerBase
     {
-        private readonly ILogger<SetupCurrencyController> _logger;
+        private readonly ILogger<SetupLocationController> _logger;
         private readonly ApplicationDbContext _context;
-        private readonly DbSet<SetupCurrency>? _dbset;
+        private readonly DbSet<SetupLocation>? _dbset;
 
-        public SetupCurrencyController(ILogger<SetupCurrencyController> logger, ApplicationDbContext applicationDbContext)
+        public SetupLocationController(ILogger<SetupLocationController> logger, ApplicationDbContext applicationDbContext)
         {
             _context = applicationDbContext;
             if (_context.SetupCurrencies is not null)
-                _dbset = _context.SetupCurrencies;
+                _dbset = _context.SetupLocations;
             _logger = logger;
         }
 
@@ -26,7 +26,7 @@ namespace AzureApp.Server.Controllers
         public async Task<IActionResult> Get()
         {
             if (_dbset is null)
-                return StatusCode(500, Array.Empty<SetupCurrency>());
+                return StatusCode(500, Array.Empty<SetupLocation>());
 
             var model = await _dbset.ToListAsync();
             return Ok(model);
@@ -36,7 +36,7 @@ namespace AzureApp.Server.Controllers
         public async Task<IActionResult> Get(string id)
         {
             if (_dbset is null)
-                return StatusCode(500, Array.Empty<SetupCurrency>());
+                return StatusCode(500, Array.Empty<SetupLocation>());
 
             var model = await _dbset.FindAsync(id);
             if (model is null)
@@ -46,17 +46,15 @@ namespace AzureApp.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post(SetupCurrency model)
+        public async Task<IActionResult> Post(SetupLocation model)
         {
             if (_dbset is null)
-                return StatusCode(500, Array.Empty<SetupCurrency>());
+                return StatusCode(500, Array.Empty<SetupLocation>());
 
-            model.Code = model.Code.ToUpper().Trim();
-
-            var item = await _dbset.FindAsync(model.Code);
+            var item = await _dbset.FindAsync(model.Name);
             if (item is not null)
             {
-                ModelState.AddModelError(nameof(item.Code), "Item already exists");
+                ModelState.AddModelError(nameof(item.Name), "Item already exists");
                 return BadRequest(ModelState);
             }
             
@@ -66,20 +64,19 @@ namespace AzureApp.Server.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Put(SetupCurrency model)
+        public async Task<IActionResult> Put(SetupLocation model)
         {
             if (_dbset is null)
-                return StatusCode(500, Array.Empty<SetupCurrency>());
+                return StatusCode(500, Array.Empty<SetupLocation>());
 
-            model.Code = model.Code.ToUpper().Trim();
-
-            var item = await _dbset.FindAsync(model.Code);
+            var item = await _dbset.FindAsync(model.Name);
             if (item is null)
             {
-                ModelState.AddModelError(nameof(item.Code), "Item does not exist");
+                ModelState.AddModelError(nameof(item.Name), "Item does not exist");
                 return BadRequest(ModelState);
             }
 
+            item.ShortName = model.ShortName;
             _context.Entry(item).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             return Ok();
@@ -89,7 +86,7 @@ namespace AzureApp.Server.Controllers
         public async Task<IActionResult> Delete(string id)
         {
             if (_dbset is null)
-                return StatusCode(500, Array.Empty<SetupCurrency>());
+                return StatusCode(500, Array.Empty<SetupLocation>());
 
             var item = await _dbset.FindAsync(id);
             if (item is null)

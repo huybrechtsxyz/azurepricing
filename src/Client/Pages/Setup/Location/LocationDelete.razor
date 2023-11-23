@@ -1,15 +1,15 @@
-﻿@page "/currency/add"
+﻿@page "/location/delete/{id}"
 @using AzureApp.Shared
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
 
-<PageTitle>Currencies</PageTitle>
+<PageTitle>Locations</PageTitle>
 
-<h1>Currency</h1>
+<h1>Locations</h1>
 
-<p>Create a new currency.</p>
+<p>Delete the location.</p>
 <p>
-    <a href="/currency" class="btn btn-light" role="button">
+    <a href="/location" class="btn btn-light" role="button">
         <span class="oi oi-arrow-left" aria-hidden="true"></span> Cancel
     </a>
 </p>
@@ -20,12 +20,17 @@
         <DataAnnotationsValidator />
         <ValidationSummary />
         <div class="mb-3">
-            <label for="Code" class="form-label">Code</label>
-            <InputText @bind-Value="model.Code" class="form-control" />
-            <ValidationMessage For="@(() => model.Code)" />
+            <label for="Name" class="form-label">Name</label>
+            <InputText @bind-Value="model.Name" class="form-control" disabled="true" />
+            <ValidationMessage For="@(() => model.Name)" />
+        </div>
+        <div class="mb-3">
+            <label for="ShortName" class="form-label">Abbreviation</label>
+            <InputText @bind-Value="model.ShortName" class="form-control" disabled="true" />
+            <ValidationMessage For="@(() => model.ShortName)" />
         </div>
         <div>
-            <button type="submit" class="btn btn-primary">Save</button>
+            <button type="submit" class="btn btn-primary">Delete</button>
             <button class="btn btn-light" @onclick="CancelItem">Cancel</button>
         </div>
     </EditForm>
@@ -34,11 +39,19 @@
 @code {
     private EditContext? editContext { get; set; }
     private ValidationMessageStore? messageStore { get; set; }
-    private SetupCurrency? model { get; set; }
+    private SetupLocation? model { get; set; }
 
-    protected override void OnInitialized()
+    [Parameter]
+    public string? Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
     {
-        model = new();
+        model = await Http.GetFromJsonAsync<SetupLocation>($"{nameof(SetupLocation)}/{Id}");
+        if (model is null)
+        {
+            Id = string.Empty;
+            model = new();
+        }
         editContext = new(model);
         messageStore = new(editContext);
     }
@@ -48,10 +61,10 @@
         if (model is null || editContext is null)
             return;
 
-        var response = await Http.PostAsJsonAsync<SetupCurrency>("SetupCurrency", model);
+        var response = await Http.DeleteAsync($"{nameof(SetupLocation)}/{Id}");
         if (response.IsSuccessStatusCode)
         { 
-            NavigationManager.NavigateTo("/currency");
+            NavigationManager.NavigateTo("/location");
             return;
         }
 
@@ -77,6 +90,6 @@
 
     private void CancelItem()
     {
-        NavigationManager.NavigateTo("/currency");
+        NavigationManager.NavigateTo("/location");
     }
 }

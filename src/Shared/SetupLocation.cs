@@ -19,4 +19,8 @@ public class SetupLocation
     [DisplayName("Location")]
     [Comment("Primary Key")]
     public string Name { get; set; } = string.Empty;
+
+    [MaxLength(30)]
+    [DisplayName("Abbreviation")]
+    public string ShortName { get; set; }
 }
