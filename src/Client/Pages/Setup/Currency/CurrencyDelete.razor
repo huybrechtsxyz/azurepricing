@@ -1,4 +1,4 @@
-﻿@page "/currency/add"
+﻿@page "/currency/delete/{id}"
 @using AzureApp.Shared
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
@@ -7,7 +7,7 @@
 
 <h1>Currency</h1>
 
-<p>Create a new currency.</p>
+<p>Delete the currency.</p>
 <p>
     <a href="/currency" class="btn btn-light" role="button">
         <span class="oi oi-arrow-left" aria-hidden="true"></span> Cancel
@@ -21,11 +21,11 @@
         <ValidationSummary />
         <div class="mb-3">
             <label for="Code" class="form-label">Code</label>
-            <InputText @bind-Value="model.Code" class="form-control" />
+            <InputText @bind-Value="model.Code" class="form-control" disabled="true" />
             <ValidationMessage For="@(() => model.Code)" />
         </div>
         <div>
-            <button type="submit" class="btn btn-primary">Save</button>
+            <button type="submit" class="btn btn-primary">Delete</button>
             <button class="btn btn-light" @onclick="CancelItem">Cancel</button>
         </div>
     </EditForm>
@@ -36,9 +36,17 @@
     private ValidationMessageStore? messageStore { get; set; }
     private SetupCurrency? model { get; set; }
 
+    [Parameter]
+    public string? Id { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
-        model = new();
+        model = await Http.GetFromJsonAsync<SetupCurrency>($"{nameof(SetupCurrency)}/{Id}");
+        if (model is null)
+        {
+            Id = string.Empty;
+            model = new();
+        }
         editContext = new(model);
         messageStore = new(editContext);
     }
@@ -48,7 +56,7 @@
         if (model is null || editContext is null)
             return;
 
-        var response = await Http.PostAsJsonAsync<SetupCurrency>("SetupCurrency", model);
+        var response = await Http.DeleteAsync($"{nameof(SetupCurrency)}/{Id}");
         if (response.IsSuccessStatusCode)
         { 
             NavigationManager.NavigateTo("/currency");
