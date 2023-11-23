@@ -1,0 +1,45 @@
+﻿@page "/currency"
+@using AzureApp.Shared
+@inject HttpClient Http
+
+<PageTitle>Currencies</PageTitle>
+
+<h1>Currencies</h1>
+
+<p>The list of currencies</p>
+
+<p>
+    <a href="/currency/add" class="btn btn-primary" role="button"><i class="oi oi-plus"></i>Create</a>
+</p>
+
+@if (Model is not null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Code</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Code</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p><em>Loading...</em></p>
+}
+
+@code {
+    public SetupCurrency[]? Model;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model = await Http.GetFromJsonAsync<SetupCurrency[]>("SetupCurrency");
+    }
+}

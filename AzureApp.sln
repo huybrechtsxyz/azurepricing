@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32804.467
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureApp.Server", "src\Server\AzureApp.Server.csproj", "{FD8864E1-2B7F-4D7A-8DDB-C969C950B8BD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureApp.Server", "src\Server\AzureApp.Server.csproj", "{FD8864E1-2B7F-4D7A-8DDB-C969C950B8BD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureApp.Client", "src\Client\AzureApp.Client.csproj", "{3894A335-2454-41E9-8F0F-0EC100C66006}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureApp.Client", "src\Client\AzureApp.Client.csproj", "{3894A335-2454-41E9-8F0F-0EC100C66006}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureApp.Shared", "src\Shared\AzureApp.Shared.csproj", "{D8426612-DF5F-419D-B9AF-3BD5CB7D80AB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureApp.Shared", "src\Shared\AzureApp.Shared.csproj", "{D8426612-DF5F-419D-B9AF-3BD5CB7D80AB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
