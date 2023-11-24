@@ -19,8 +19,8 @@ public class SetupDefaultUnit
     [Comment("Primary Key")]
     public int Id { get; set; }
 
-    [Required]
     public SetupMeasureUnit SetupMeasureUnit { get; set; } = new();
+    [Required]
     public int SetupMeasureUnitId { get; set; }
 
     [Required]
