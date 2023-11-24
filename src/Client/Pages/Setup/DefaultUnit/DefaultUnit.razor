@@ -21,6 +21,7 @@
             <tr>
                 <th>Azure Unit of Measure</th>
                 <th>Measuring Unit</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -28,7 +29,7 @@
             {
                 <tr>
                     <td>@item.AzureMeasure</td>
-                    <td>@item.SetupMeasureUnitId</td>
+                    <td>@item.SetupMeasureUnit.Name</td>
                     <td>
                         <a href="/defaultunit/edit/@item.Id" class="btn btn-outline-dark" role="button">Edit</a>
                         <a href="/defaultunit/delete/@item.Id" class="btn btn-outline-dark" role="button">Delete</a>

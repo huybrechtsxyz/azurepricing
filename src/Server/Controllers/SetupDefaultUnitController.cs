@@ -29,7 +29,9 @@ namespace AzureApp.Server.Controllers
                 return StatusCode(500, Array.Empty<SetupDefaultUnit>());
 
             var model = await _dbset
+                .Include(i => i.SetupMeasureUnit)
                 .OrderBy(o => o.AzureMeasure)
+                .ThenBy(o => o.SetupMeasureUnit.Name)
                 .ToListAsync();
             return Ok(model);
         }
@@ -55,7 +57,7 @@ namespace AzureApp.Server.Controllers
             if (_dbset is null)
                 return StatusCode(500, Array.Empty<SetupDefaultUnit>());
 
-            var model = await _dbset.FindAsync(id);
+            var model = await _dbset.Include(i => i.SetupMeasureUnit).SingleAsync(q => q.Id == id);
             if (model is null)
                 return NotFound();
 

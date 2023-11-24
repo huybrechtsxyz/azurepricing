@@ -26,7 +26,7 @@
         </div>
         <div class="mb-3">
             <label for="SetupMeasureUnitId" class="form-label">Measuring Unit Id</label>
-            <InputNumber @bind-Value="model.SetupMeasureUnitId" class="form-control" disabled="true" />
+            <InputText @bind-Value="model.SetupMeasureUnit.Name" class="form-control" disabled="true" />
             <ValidationMessage For="@(() => model.SetupMeasureUnitId)" />
         </div>
         <div>

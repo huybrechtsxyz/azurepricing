@@ -21,6 +21,8 @@ public class SetupDefaultUnit
 
     public int SetupMeasureUnitId { get; set; }
 
+    public SetupMeasureUnit SetupMeasureUnit { get; set; } = null!;
+
     [Required]
     [MaxLength(30)]
     [DisplayName("Azure Unit of Measure")]

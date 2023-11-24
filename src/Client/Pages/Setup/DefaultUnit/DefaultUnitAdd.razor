@@ -61,6 +61,8 @@
         if (model is null || editContext is null)
             return;
 
+        model.SetupMeasureUnit = measures.ToList().First(q => q.Id == model.SetupMeasureUnitId);
+
         var response = await Http.PostAsJsonAsync<SetupDefaultUnit>(nameof(SetupDefaultUnit), model);
         if (response.IsSuccessStatusCode)
         { 
