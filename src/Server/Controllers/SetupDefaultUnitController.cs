@@ -29,9 +29,7 @@ namespace AzureApp.Server.Controllers
                 return StatusCode(500, Array.Empty<SetupDefaultUnit>());
 
             var model = await _dbset
-                .Include(i => i.SetupMeasureUnit)
                 .OrderBy(o => o.AzureMeasure)
-                .ThenBy(o => o.SetupMeasureUnit.Name)
                 .ToListAsync();
             return Ok(model);
         }
@@ -76,8 +74,12 @@ namespace AzureApp.Server.Controllers
                 ModelState.AddModelError(nameof(item.Id), "Item already exists");
                 return BadRequest(ModelState);
             }
-            
-            await _dbset.AddAsync(model);
+
+            item = new();
+            item.Id = 0;
+            item.AzureMeasure = model.AzureMeasure;
+            item.SetupMeasureUnitId = model.SetupMeasureUnitId;
+            await _dbset.AddAsync(item);
             await _context.SaveChangesAsync();
             return Ok();
         }

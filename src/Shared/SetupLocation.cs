@@ -22,5 +22,5 @@ public class SetupLocation
 
     [MaxLength(30)]
     [DisplayName("Abbreviation")]
-    public string ShortName { get; set; }
+    public string? ShortName { get; set; }
 }
