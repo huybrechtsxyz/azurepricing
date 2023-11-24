@@ -1,15 +1,15 @@
-﻿@page "/service/edit/{id}"
+﻿@page "/defaultunit/delete/{id:int}"
 @using AzureApp.Shared
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
 
-<PageTitle>Services</PageTitle>
+<PageTitle>Default Units</PageTitle>
 
-<h1>Service</h1>
+<h1>Default Unit</h1>
 
-<p>Edit the service.</p>
+<p>Delete the default measuring unit.</p>
 <p>
-    <a href="/service" class="btn btn-light" role="button">
+    <a href="/defaultunit" class="btn btn-light" role="button">
         <span class="oi oi-arrow-left" aria-hidden="true"></span> Cancel
     </a>
 </p>
@@ -20,22 +20,17 @@
         <DataAnnotationsValidator />
         <ValidationSummary />
         <div class="mb-3">
-            <label for="Name" class="form-label">Service</label>
-            <InputText @bind-Value="model.Name" class="form-control" />
-            <ValidationMessage For="@(() => model.Name)" />
+            <label for="AzureMeasure" class="form-label">Azure Unit of Measure</label>
+            <InputText @bind-Value="model.AzureMeasure" class="form-control" disabled="true" />
+            <ValidationMessage For="@(() => model.AzureMeasure)" />
         </div>
         <div class="mb-3">
-            <label for="Category" class="form-label">Category</label>
-            <InputText @bind-Value="model.Category" class="form-control" />
-            <ValidationMessage For="@(() => model.Category)" />
-        </div>
-        <div class="mb-3">
-            <label for="Enabled" class="form-label">Enabled?</label>
-            <InputCheckbox @bind-Value="model.Enabled" class="form-check" />
-            <ValidationMessage For="@(() => model.Enabled)" />
+            <label for="SetupMeasureUnitId" class="form-label">Measuring Unit</label>
+            <InputText @bind-Value="model.SetupMeasureUnit.Name" class="form-control" disabled="true" />
+            <ValidationMessage For="@(() => model.SetupMeasureUnitId)" />
         </div>
         <div>
-            <button type="submit" class="btn btn-primary">Save</button>
+            <button type="submit" class="btn btn-primary">Delete</button>
             <button class="btn btn-light" @onclick="CancelItem">Cancel</button>
         </div>
     </EditForm>
@@ -44,17 +39,17 @@
 @code {
     private EditContext? editContext { get; set; }
     private ValidationMessageStore? messageStore { get; set; }
-    private SetupService? model { get; set; }
+    private SetupDefaultUnit? model { get; set; }
 
     [Parameter]
-    public string? Id { get; set; }
+    public int? Id { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        model = await Http.GetFromJsonAsync<SetupService>($"{nameof(SetupService)}/{Id}");
+        model = await Http.GetFromJsonAsync<SetupDefaultUnit>($"{nameof(SetupDefaultUnit)}/{Id}");
         if (model is null)
         {
-            Id = string.Empty;
+            Id = 0;
             model = new();
         }
         editContext = new(model);
@@ -66,10 +61,10 @@
         if (model is null || editContext is null)
             return;
 
-        var response = await Http.PutAsJsonAsync<SetupService>(nameof(SetupService), model);
+        var response = await Http.DeleteAsync($"{nameof(SetupDefaultUnit)}/{Id}");
         if (response.IsSuccessStatusCode)
         { 
-            NavigationManager.NavigateTo("/service");
+            NavigationManager.NavigateTo("/defaultunit");
             return;
         }
 
@@ -95,6 +90,6 @@
 
     private void CancelItem()
     {
-        NavigationManager.NavigateTo("/service");
+        NavigationManager.NavigateTo("/defaultunit");
     }
 }

@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AzureApp.Shared;
 
-[Table("DefaultUnit")]
+[Table("SetupDefaultUnit")]
 public class SetupDefaultUnit
 {
     public SetupDefaultUnit()

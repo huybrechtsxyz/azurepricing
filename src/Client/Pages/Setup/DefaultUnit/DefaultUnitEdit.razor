@@ -1,15 +1,15 @@
-﻿@page "/service/edit/{id}"
+﻿@page "/defaultunit/edit/{id:int}"
 @using AzureApp.Shared
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
 
-<PageTitle>Services</PageTitle>
+<PageTitle>Measuring Units</PageTitle>
 
-<h1>Service</h1>
+<h1>Mesauring Units</h1>
 
-<p>Edit the service.</p>
+<p>Edit the measuring unit.</p>
 <p>
-    <a href="/service" class="btn btn-light" role="button">
+    <a href="/defaultunit" class="btn btn-light" role="button">
         <span class="oi oi-arrow-left" aria-hidden="true"></span> Cancel
     </a>
 </p>
@@ -20,19 +20,19 @@
         <DataAnnotationsValidator />
         <ValidationSummary />
         <div class="mb-3">
-            <label for="Name" class="form-label">Service</label>
-            <InputText @bind-Value="model.Name" class="form-control" />
-            <ValidationMessage For="@(() => model.Name)" />
+            <label for="AzureMeasure" class="form-label">Azure Unit of Measure</label>
+            <InputText @bind-Value="model.AzureMeasure" class="form-control" />
+            <ValidationMessage For="@(() => model.AzureMeasure)" />
         </div>
         <div class="mb-3">
-            <label for="Category" class="form-label">Category</label>
-            <InputText @bind-Value="model.Category" class="form-control" />
-            <ValidationMessage For="@(() => model.Category)" />
-        </div>
-        <div class="mb-3">
-            <label for="Enabled" class="form-label">Enabled?</label>
-            <InputCheckbox @bind-Value="model.Enabled" class="form-check" />
-            <ValidationMessage For="@(() => model.Enabled)" />
+            <label for="SetupMeasureUnitId" class="form-label">Measuring Unit</label>
+            <InputSelect @bind-Value="model.SetupMeasureUnitId" class="form-control">
+                @foreach (var option in measures)
+                {
+                    <option value="@option.Id">@option.Name</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => model.SetupMeasureUnitId)" />
         </div>
         <div>
             <button type="submit" class="btn btn-primary">Save</button>
@@ -44,21 +44,24 @@
 @code {
     private EditContext? editContext { get; set; }
     private ValidationMessageStore? messageStore { get; set; }
-    private SetupService? model { get; set; }
+    private SetupDefaultUnit? model { get; set; }
+    private SetupMeasureUnit[] measures { get; set; } = Array.Empty<SetupMeasureUnit>();
 
     [Parameter]
-    public string? Id { get; set; }
+    public int? Id { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        model = await Http.GetFromJsonAsync<SetupService>($"{nameof(SetupService)}/{Id}");
+        model = await Http.GetFromJsonAsync<SetupDefaultUnit>($"{nameof(SetupDefaultUnit)}/{Id}");
         if (model is null)
         {
-            Id = string.Empty;
+            Id = 0;
             model = new();
         }
         editContext = new(model);
         messageStore = new(editContext);
+
+        measures = await Http.GetFromJsonAsync<SetupMeasureUnit[]>($"{nameof(SetupDefaultUnit)}/units") ?? Array.Empty<SetupMeasureUnit>();
     }
 
     private async Task HandleSubmit()
@@ -66,10 +69,10 @@
         if (model is null || editContext is null)
             return;
 
-        var response = await Http.PutAsJsonAsync<SetupService>(nameof(SetupService), model);
+        var response = await Http.PutAsJsonAsync<SetupDefaultUnit>("SetupDefaultUnit", model);
         if (response.IsSuccessStatusCode)
         { 
-            NavigationManager.NavigateTo("/service");
+            NavigationManager.NavigateTo("/defaultunit");
             return;
         }
 
@@ -95,6 +98,6 @@
 
     private void CancelItem()
     {
-        NavigationManager.NavigateTo("/service");
+        NavigationManager.NavigateTo("/defaultunit");
     }
 }
