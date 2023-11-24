@@ -21,7 +21,7 @@
         <ValidationSummary />
         <div class="mb-3">
             <label for="Name" class="form-label">Service</label>
-            <InputText @bind-Value="model.Name" class="form-control" disabled="true" />
+            <InputText @bind-Value="model.Name" class="form-control" />
             <ValidationMessage For="@(() => model.Name)" />
         </div>
         <div class="mb-3">
@@ -31,7 +31,7 @@
         </div>
         <div class="mb-3">
             <label for="Enabled" class="form-label">Enabled?</label>
-            <InputCheckbox @bind-Value="model.Enabled" class="form-control" />
+            <InputCheckbox @bind-Value="model.Enabled" />
             <ValidationMessage For="@(() => model.Enabled)" />
         </div>
         <div>

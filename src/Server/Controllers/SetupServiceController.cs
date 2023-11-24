@@ -1,4 +1,5 @@
 ﻿using AzureApp.Server.Data;
+using AzureApp.Server.Services;
 using AzureApp.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,15 +12,20 @@ namespace AzureApp.Server.Controllers
     public class SetupServiceController : ControllerBase
     {
         private readonly ILogger<SetupServiceController> _logger;
+        private readonly IConfiguration _configuration;
         private readonly ApplicationDbContext _context;
         private readonly DbSet<SetupService>? _dbset;
 
-        public SetupServiceController(ILogger<SetupServiceController> logger, ApplicationDbContext applicationDbContext)
+        public SetupServiceController(
+            ILogger<SetupServiceController> logger, 
+            IConfiguration configuration,
+            ApplicationDbContext applicationDbContext)
         {
             _context = applicationDbContext;
             if (_context.SetupServices is not null)
                 _dbset = _context.SetupServices;
             _logger = logger;
+            _configuration = configuration;
         }
 
         [HttpGet]
@@ -28,7 +34,7 @@ namespace AzureApp.Server.Controllers
             if (_dbset is null)
                 return StatusCode(500, Array.Empty<SetupService>());
 
-            var model = await _dbset.ToListAsync();
+            var model = await _dbset.OrderBy(o => o.Name).ToListAsync();
             return Ok(model);
         }
 
@@ -95,6 +101,37 @@ namespace AzureApp.Server.Controllers
             _dbset.Remove(item);
             _context.SaveChanges();
             return Ok();
+        }
+
+        [HttpGet("refresh")]
+        public async Task<IActionResult> Refresh()
+        {
+            if (_dbset is null)
+                return StatusCode(500, Array.Empty<SetupService>());
+
+            AzurePricingService azurePricingService = new(_logger, _configuration);
+            Dictionary<string, SetupService> azRates =  await azurePricingService.GetServicesAsync();
+            List<SetupService> dbRates = await _dbset.ToListAsync();
+            List<SetupService> newRates = new();
+
+            foreach (var keyValuePair in azRates)
+            {
+                if (!dbRates.Any(q => q.ServiceId == keyValuePair.Key))
+                {
+                    newRates.Add(keyValuePair.Value);
+                }
+            }
+
+            if(newRates.Any())
+            {
+                foreach(var value in newRates)
+                {
+                    _context.Add(value);
+                }
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Get));
         }
     }
 }

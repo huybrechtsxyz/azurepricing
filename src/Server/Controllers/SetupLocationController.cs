@@ -28,7 +28,7 @@ namespace AzureApp.Server.Controllers
             if (_dbset is null)
                 return StatusCode(500, Array.Empty<SetupLocation>());
 
-            var model = await _dbset.ToListAsync();
+            var model = await _dbset.OrderBy(o => o.Name).ToListAsync();
             return Ok(model);
         }
 
