@@ -8,17 +8,17 @@ namespace AzureApp.Server.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class SetupLocationController : ControllerBase
+    public class SetupMeasureUnitController : ControllerBase
     {
-        private readonly ILogger<SetupLocationController> _logger;
+        private readonly ILogger<SetupMeasureUnitController> _logger;
         private readonly ApplicationDbContext _context;
-        private readonly DbSet<SetupLocation>? _dbset;
+        private readonly DbSet<SetupMeasureUnit>? _dbset;
 
-        public SetupLocationController(ILogger<SetupLocationController> logger, ApplicationDbContext applicationDbContext)
+        public SetupMeasureUnitController(ILogger<SetupMeasureUnitController> logger, ApplicationDbContext applicationDbContext)
         {
             _context = applicationDbContext;
-            if (_context.SetupLocations is not null)
-                _dbset = _context.SetupLocations;
+            if (_context.SetupMeasureUnits is not null)
+                _dbset = _context.SetupMeasureUnits;
             _logger = logger;
         }
 
@@ -26,17 +26,17 @@ namespace AzureApp.Server.Controllers
         public async Task<IActionResult> Get()
         {
             if (_dbset is null)
-                return StatusCode(500, Array.Empty<SetupLocation>());
+                return StatusCode(500, Array.Empty<SetupMeasureUnit>());
 
             var model = await _dbset.ToListAsync();
             return Ok(model);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(string id)
+        public async Task<IActionResult> Get(int id)
         {
             if (_dbset is null)
-                return StatusCode(500, Array.Empty<SetupLocation>());
+                return StatusCode(500, Array.Empty<SetupMeasureUnit>());
 
             var model = await _dbset.FindAsync(id);
             if (model is null)
@@ -46,15 +46,15 @@ namespace AzureApp.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post(SetupLocation model)
+        public async Task<IActionResult> Post(SetupMeasureUnit model)
         {
             if (_dbset is null)
-                return StatusCode(500, Array.Empty<SetupLocation>());
+                return StatusCode(500, Array.Empty<SetupMeasureUnit>());
 
-            var item = await _dbset.FindAsync(model.Name);
+            var item = await _dbset.FindAsync(model.Id);
             if (item is not null)
             {
-                ModelState.AddModelError(nameof(item.Name), "Item already exists");
+                ModelState.AddModelError(nameof(item.Id), "Item already exists");
                 return BadRequest(ModelState);
             }
             
@@ -64,29 +64,29 @@ namespace AzureApp.Server.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Put(SetupLocation model)
+        public async Task<IActionResult> Put(SetupMeasureUnit model)
         {
             if (_dbset is null)
-                return StatusCode(500, Array.Empty<SetupLocation>());
+                return StatusCode(500, Array.Empty<SetupMeasureUnit>());
 
-            var item = await _dbset.FindAsync(model.Name);
+            var item = await _dbset.FindAsync(model.Id);
             if (item is null)
             {
-                ModelState.AddModelError(nameof(item.Name), "Item does not exist");
+                ModelState.AddModelError(nameof(item.Id), "Item does not exist");
                 return BadRequest(ModelState);
             }
 
-            item.ShortName = model.ShortName;
+            item.Name = model.Name;
             _context.Entry(item).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             return Ok();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(int id)
         {
             if (_dbset is null)
-                return StatusCode(500, Array.Empty<SetupLocation>());
+                return StatusCode(500, Array.Empty<SetupMeasureUnit>());
 
             var item = await _dbset.FindAsync(id);
             if (item is null)

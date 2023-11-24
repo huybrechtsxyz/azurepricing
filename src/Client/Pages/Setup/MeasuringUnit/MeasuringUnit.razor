@@ -1,0 +1,51 @@
+﻿@page "/measuringunit"
+@using AzureApp.Shared
+@inject HttpClient Http
+
+<PageTitle>Measuring Units</PageTitle>
+
+<h1>Measuring Units</h1>
+
+<p>The list of available measuring units</p>
+
+<p>
+    <a href="/measuringunit/add" class="btn btn-primary" role="button">
+        <span class="oi oi-plus" aria-hidden="true"></span> Create
+    </a>
+</p>
+
+@if (Model is not null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>
+                        <a href="/measuringunit/edit/@item.Id" class="btn btn-outline-dark" role="button">Edit</a>
+                        <a href="/measuringunit/delete/@item.Id" class="btn btn-outline-dark" role="button">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p><em>Loading...</em></p>
+}
+
+@code {
+    public SetupMeasureUnit[]? Model;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model = await Http.GetFromJsonAsync<SetupMeasureUnit[]>(nameof(SetupMeasureUnit));
+    }
+}
