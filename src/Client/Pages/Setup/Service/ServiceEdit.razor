@@ -1,15 +1,15 @@
-﻿@page "/location/edit/{id}"
+﻿@page "/service/edit/{id}"
 @using AzureApp.Shared
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
 
-<PageTitle>Locations</PageTitle>
+<PageTitle>Services</PageTitle>
 
-<h1>Location</h1>
+<h1>Service</h1>
 
-<p>Edit the location.</p>
+<p>Edit the service.</p>
 <p>
-    <a href="/location" class="btn btn-light" role="button">
+    <a href="/service" class="btn btn-light" role="button">
         <span class="oi oi-arrow-left" aria-hidden="true"></span> Cancel
     </a>
 </p>
@@ -20,14 +20,19 @@
         <DataAnnotationsValidator />
         <ValidationSummary />
         <div class="mb-3">
-            <label for="Name" class="form-label">Name</label>
+            <label for="Name" class="form-label">Service</label>
             <InputText @bind-Value="model.Name" class="form-control" disabled="true" />
             <ValidationMessage For="@(() => model.Name)" />
         </div>
         <div class="mb-3">
-            <label for="ShortName" class="form-label">Abbreviation</label>
-            <InputText @bind-Value="model.ShortName" class="form-control" />
-            <ValidationMessage For="@(() => model.ShortName)" />
+            <label for="Category" class="form-label">Category</label>
+            <InputText @bind-Value="model.Category" class="form-control" />
+            <ValidationMessage For="@(() => model.Category)" />
+        </div>
+        <div class="mb-3">
+            <label for="Enabled" class="form-label">Enabled?</label>
+            <InputCheckbox @bind-Value="model.Enabled" class="form-control" />
+            <ValidationMessage For="@(() => model.Enabled)" />
         </div>
         <div>
             <button type="submit" class="btn btn-primary">Save</button>
@@ -39,14 +44,14 @@
 @code {
     private EditContext? editContext { get; set; }
     private ValidationMessageStore? messageStore { get; set; }
-    private SetupLocation? model { get; set; }
+    private SetupService? model { get; set; }
 
     [Parameter]
     public string? Id { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        model = await Http.GetFromJsonAsync<SetupLocation>($"{nameof(SetupLocation)}/{Id}");
+        model = await Http.GetFromJsonAsync<SetupService>($"{nameof(SetupService)}/{Id}");
         if (model is null)
         {
             Id = string.Empty;
@@ -61,10 +66,10 @@
         if (model is null || editContext is null)
             return;
 
-        var response = await Http.PutAsJsonAsync<SetupLocation>(nameof(SetupLocation), model);
+        var response = await Http.PutAsJsonAsync<SetupService>(nameof(SetupService), model);
         if (response.IsSuccessStatusCode)
         { 
-            NavigationManager.NavigateTo("/location");
+            NavigationManager.NavigateTo("/service");
             return;
         }
 
@@ -90,6 +95,6 @@
 
     private void CancelItem()
     {
-        NavigationManager.NavigateTo("/location");
+        NavigationManager.NavigateTo("/service");
     }
 }

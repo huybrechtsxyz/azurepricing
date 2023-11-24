@@ -28,4 +28,17 @@ public class SetupService
     [DisplayName("Category")]
     [Comment("Service category")]
     public string? Category { get; set; }
+
+    [DisplayName("Is Enabled?")]
+    [Comment("Is the service enabled?")]
+    public bool Enabled { get; set; } = false;
+
+
+
+    public void UpdateFields(SetupService service)
+    {
+        this.Name = service.Name;
+        this.Category = service.Category;
+        this.Enabled = service.Enabled;
+    }
 }

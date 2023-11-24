@@ -1,0 +1,49 @@
+﻿@page "/service"
+@using AzureApp.Shared
+@inject HttpClient Http
+
+<PageTitle>Services</PageTitle>
+
+<h1>Services</h1>
+
+<p>The list of available azure services</p>
+
+@if (Model is not null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Enabled?</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.Category</td>
+                    <td>@item.Enabled</td>
+                    <td>
+                        <a href="/service/edit/@item.ServiceId" class="btn btn-outline-dark" role="button">Edit</a>
+                        <a href="/service/delete/@item.ServiceId" class="btn btn-outline-dark" role="button">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p><em>Loading...</em></p>
+}
+
+@code {
+    public SetupService[]? Model;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model = await Http.GetFromJsonAsync<SetupService[]>(nameof(SetupService));
+    }
+}
