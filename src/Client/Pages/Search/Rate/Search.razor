@@ -1,0 +1,173 @@
+﻿@page "/search"
+@using AzureApp.Shared
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+
+<PageTitle>Search Rates</PageTitle>
+
+<h1>Search Rates</h1>
+
+<p>Find a list of resource rates</p>
+
+@if (parameters is not null)
+{
+    <EditForm EditContext="@searchContext" OnValidSubmit="StartSearch">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="mb-3">
+            <label for="Service" class="form-label">Azure Service</label>
+            <InputSelect @bind-Value="parameters.Service" class="form-control" >
+                @if (services is not null && services.Length>0)
+                {
+                    foreach (var option in services)
+                    {
+                        <option value="@option.Name">@option.Name</option>
+                    }
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => parameters.Service)" />
+        </div>
+        <div class="mb-3">
+            <label for="Location" class="form-label">Azure Location</label>
+            <InputSelect @bind-Value="parameters.Location" class="form-control">
+                @if(locations is not null && locations.Length>0)
+                {
+                    foreach (var option in locations)
+                    {
+                        <option value="@option.Name">@option.Name</option>
+                    }
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => parameters.Location)" />
+        </div>
+        <div class="mb-3">
+            <label for="Currency" class="form-label">Currency Code</label>
+            <InputSelect @bind-Value="parameters.CurrencyCode" class="form-control">
+                @if(currencies is not null && currencies.Length>0)
+                {
+                    foreach (var option in currencies)
+                    {
+                        <option value="@option.Code">@option.Code</option>
+                    }
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => parameters.CurrencyCode)" />
+        </div>
+        <div>
+            <button type="submit" class="btn btn-primary">Search</button>
+            <button class="btn btn-light" @onclick="ClearSearch">Clear</button>
+        </div>
+    </EditForm>
+}
+<hr />
+@if (model is not null)
+{
+    <EditForm EditContext="@editContext" OnValidSubmit="ImportSelected">
+        <div>
+            <button type="submit" class="btn btn-primary">Import</button>
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th> </th>
+                    <th>Product</th>
+                    <th>Sku</th>
+                    <th>Meter</th>
+                    <th>Retail Price</th>
+                    <th>Minimum Units</th>
+                    <th>Unit Of Measure</th>
+                    <th>Type</th>
+                    <th>Service</th>
+                    <th>Category</th>
+                    <th>Location</th>
+                    <th>Currency</th>
+                    <th>Primary?</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in model)
+                {
+                    <tr>
+                        <td><InputCheckbox @bind-Value="item.IsSelected" class="form-check" @onclick="SelectItem" /></td>
+                        <td>@item.Product</td>
+                        <td>@item.Sku</td>
+                        <td>@item.MeterName</td>
+                        <td>@item.RetailPrice</td>
+                        <td>@item.MiminumUnits</td>
+                        <td>@item.UnitOfMeasure</td>
+                        <td>@item.Type</td>
+                        <td>@item.Service</td>
+                        <td>@item.Category</td>
+                        <td>@item.Location</td>
+                        <td>@item.CurrencyCode</td>
+                        <td>@item.IsPrimaryRegion</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </EditForm>
+}
+else
+{
+    <p><em>Loading...</em></p>
+}
+
+@code {
+    private EditContext? searchContext { get; set; }
+    private ValidationMessageStore? searchStore { get; set; }
+    private SearchParameters parameters = null!;
+
+    private SetupService[] services = null!;
+    private SetupLocation[] locations = null!;
+    private SetupCurrency[] currencies = null!;
+
+    private EditContext? editContext { get; set; }
+    private ValidationMessageStore? messageStore { get; set; }
+    private SearchRate[] model = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        model = Array.Empty<SearchRate>();
+        editContext = new(model);
+        messageStore = new(editContext);
+
+        services = await Http.GetFromJsonAsync<SetupService[]>($"{nameof(SearchRate)}/services") ?? Array.Empty<SetupService>();
+        locations = await Http.GetFromJsonAsync<SetupLocation[]>($"{nameof(SearchRate)}/locations") ?? Array.Empty<SetupLocation>();
+        currencies = await Http.GetFromJsonAsync<SetupCurrency[]>($"{nameof(SearchRate)}/currencies") ?? Array.Empty<SetupCurrency>();
+
+        parameters = new();
+        searchContext = new(parameters);
+        searchStore = new(searchContext);
+        parameters.Service = (services.Length>0 ? services[0].Name : string.Empty);
+        parameters.Location = (locations.Length > 0 ? locations[0].Name : string.Empty);
+        parameters.CurrencyCode = (currencies.Length > 0 ? currencies[0].Code : string.Empty);
+    }
+
+    private async Task StartSearch()
+    {
+        if (parameters is null || searchContext is null)
+            return;
+
+        var response = await Http.PostAsJsonAsync<SearchParameters>($"{nameof(SearchRate)}/search", parameters);
+        response.EnsureSuccessStatusCode();
+        model = await response.Content.ReadFromJsonAsync<SearchRate[]>() ?? Array.Empty<SearchRate>();
+    }
+
+    private void ClearSearch()
+    {
+        model = Array.Empty<SearchRate>();
+    }
+
+    private void SelectItem()
+    {
+
+    }
+
+    private async Task ImportSelected()
+    {
+        var selection = model.Where(q => q.IsSelected == true);
+        await Http.PostAsJsonAsync<SearchRate[]>($"{nameof(SearchRate)}/import", selection.ToArray());
+        NavigationManager.NavigateTo("/");
+    }
+}

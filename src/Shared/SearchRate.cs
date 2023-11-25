@@ -135,5 +135,28 @@ public class SearchRate
     [NotMapped]
     [DisplayName("Select")]
     [Comment("Selected?")]
-    public bool? IsSelected { get; set; }
+    public bool IsSelected { get; set; } = false;
+
+    public void UpdateFields(SearchRate searchRate)
+    {
+        this.ValidFrom = searchRate.ValidFrom;
+        this.ServiceId = searchRate.ServiceId;
+        this.Service = searchRate.Service;
+        this.Category = searchRate.Category;
+        this.Region = searchRate.Region;
+        this.Location = searchRate.Location;
+        this.CurrencyCode = searchRate.CurrencyCode;
+        this.RetailPrice = searchRate.RetailPrice;
+        this.UnitPrice = searchRate.UnitPrice;
+        this.MiminumUnits = searchRate.MiminumUnits;
+        this.UnitOfMeasure = searchRate.UnitOfMeasure;
+        this.ProductId = searchRate.ProductId;
+        this.Product = searchRate.Product;
+        this.MeterId = searchRate.MeterId;
+        this.MeterName = searchRate.MeterName;
+        this.SkuId = searchRate.SkuId;
+        this.Sku = searchRate.Sku;
+        this.Type = searchRate.Type;
+        this.IsPrimaryRegion = searchRate.IsPrimaryRegion;
+    }
 }
