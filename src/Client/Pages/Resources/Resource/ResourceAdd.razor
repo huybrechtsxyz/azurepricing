@@ -16,6 +16,18 @@
 
 @if (@model is not null)
 {
+    <tr>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+    </tr>
+
     <EditForm EditContext="@editContext" OnValidSubmit="HandleSubmit">
         <DataAnnotationsValidator />
         <ValidationSummary />
@@ -23,6 +35,46 @@
             <label for="Name" class="form-label">Name</label>
             <InputText @bind-Value="model.Name" class="form-control" />
             <ValidationMessage For="@(() => model.Name)" />
+        </div>
+        <div class="mb-3">
+            <label for="Description" class="form-label">Description</label>
+            <InputText @bind-Value="model.Description" class="form-control" />
+            <ValidationMessage For="@(() => model.Description)" />
+        </div>
+        <div class="mb-3">
+            <label for="CostDriver" class="form-label">Cost Driver</label>
+            <InputText @bind-Value="model.CostDriver" class="form-control" />
+            <ValidationMessage For="@(() => model.CostDriver)" />
+        </div>
+        <div class="mb-3">
+            <label for="CostBasedOn" class="form-label">Cost is based on</label>
+            <InputText @bind-Value="model.CostBasedOn" class="form-control" />
+            <ValidationMessage For="@(() => model.CostBasedOn)" />
+        </div>
+        <div class="mb-3">
+            <label for="Service" class="form-label">Service</label>
+            <InputText @bind-Value="model.Service" class="form-control" />
+            <ValidationMessage For="@(() => model.Service)" />
+        </div>
+        <div class="mb-3">
+            <label for="Category" class="form-label">Category</label>
+            <InputText @bind-Value="model.Category" class="form-control" />
+            <ValidationMessage For="@(() => model.Category)" />
+        </div>
+        <div class="mb-3">
+            <label for="Product" class="form-label">Product</label>
+            <InputText @bind-Value="model.Product" class="form-control" />
+            <ValidationMessage For="@(() => model.Product)" />
+        </div>
+        <div class="mb-3">
+            <label for="Size" class="form-label">Size</label>
+            <InputText @bind-Value="model.Size" class="form-control" />
+            <ValidationMessage For="@(() => model.Size)" />
+        </div>
+        <div class="mb-3">
+            <label for="Remarks" class="form-label">Remarks</label>
+            <InputText @bind-Value="model.Remarks" class="form-control" />
+            <ValidationMessage For="@(() => model.Remarks)" />
         </div>
         <div>
             <button type="submit" class="btn btn-primary">Save</button>

@@ -107,7 +107,9 @@ namespace AzureApp.Server.Controllers
                 defaults = await _context.SetupDefaultUnits.OrderBy(o => o.AzureMeasure).ThenBy(o => o.SetupMeasureUnit.Name).ToListAsync();
 
             return Ok();
-
+        }
+    }
+}
             /*
 
             List<Resource> resources = new();
@@ -141,10 +143,5 @@ namespace AzureApp.Server.Controllers
                 }
 
                 rates.Add(rate);
-                */
             }
-
-            return Ok();
-        }
-    }
-}
+            */

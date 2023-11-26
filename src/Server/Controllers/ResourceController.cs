@@ -57,10 +57,10 @@ namespace AzureApp.Server.Controllers
             if (_dbset is null)
                 return StatusCode(500, Array.Empty<Resource>());
 
-            var item = await _dbset.FindAsync(model.ServiceId);
+            var item = await _dbset.FindAsync(model.Id);
             if (item is not null)
             {
-                ModelState.AddModelError(nameof(item.ServiceId), "Item already exists");
+                ModelState.AddModelError(nameof(item.Id), "Item already exists");
                 return BadRequest(ModelState);
             }
             
@@ -75,10 +75,10 @@ namespace AzureApp.Server.Controllers
             if (_dbset is null)
                 return StatusCode(500, Array.Empty<Resource>());
 
-            var item = await _dbset.FindAsync(model.ServiceId);
+            var item = await _dbset.FindAsync(model.Id);
             if (item is null)
             {
-                ModelState.AddModelError(nameof(item.Name), "Item does not exist");
+                ModelState.AddModelError(nameof(item.Id), "Item does not exist");
                 return BadRequest(ModelState);
             }
 
