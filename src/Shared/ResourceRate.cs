@@ -18,7 +18,6 @@ public class ResourceRate
     {
         this.Name = "";
         this.ResourceId = 0;
-        this.Resource = null!;
         this.UpdateFields(searchRate);
     }
 
@@ -28,8 +27,6 @@ public class ResourceRate
     [Comment("Primary Key")]
     public int Id { get; set; }
 
-    [Required]
-    public Resource Resource { get; set; } = new();
     public int ResourceId { get; set; }
 
     [Required]

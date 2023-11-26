@@ -31,11 +31,8 @@ public class ResourceUnit
     [Comment("Primary Key")]
     public int Id { get; set; }
 
-    [Required]
     public int ResourceId { get; set; }
 
-    [Required]
-    public ResourceRate ResourceRate { get; set; } = new();
     public int ResourceRateId { get; set; }
 
     [Required]
