@@ -4,6 +4,7 @@ using AzureApp.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System.Resources;
 using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 
 namespace AzureApp.Server.Controllers
@@ -53,6 +54,15 @@ namespace AzureApp.Server.Controllers
             if (_context.SetupServices is null)
                 return StatusCode(500, Array.Empty<SetupService>());
             var model = await _context.SetupServices.Where(q => q.Enabled == true).OrderBy(o => o.Name).ToListAsync();
+            return Ok(model);
+        }
+
+        [HttpGet("resources")]
+        public async Task<IActionResult> GetResources()
+        {
+            if (_context.Resources is null)
+                return StatusCode(500, Array.Empty<Resource>());
+            var model = await _context.Resources.OrderBy(o => o.Name).ToListAsync();
             return Ok(model);
         }
 

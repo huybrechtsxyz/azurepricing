@@ -76,6 +76,11 @@ public class Resource
     [Comment("Resource remarks")]
     public string? Remarks { get; set; }
 
+    [NotMapped]
+    [DisplayName("Select")]
+    [Comment("Is resource selected in list?")]
+    public bool IsSelected { get; set; } = false;
+
     public ICollection<ResourceRate>? ResourceRates { get; set; }
 
     public ICollection<ResourceLimit>? ResourceLimits { get; set; }

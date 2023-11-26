@@ -22,6 +22,7 @@ public class SearchRate
 
     [DisplayName("Valid From")]
     [Comment("Rate is valid from")]
+    [DisplayFormat(DataFormatString = "yyyy-MM-dd")]
     [JsonPropertyName("effectiveStartDate")]
     public DateTime ValidFrom { get; set; }
 
@@ -64,12 +65,14 @@ public class SearchRate
     [Precision(12, 4)]
     [DisplayName("Retail Price")]
     [Comment("Retail price")]
+    [DisplayFormat(DataFormatString = "0.0000#")]
     [JsonPropertyName("retailPrice")]
     public decimal RetailPrice { get; set; }
 
     [Precision(12, 4)]
     [DisplayName("Unit Price")]
     [Comment("Unit price")]
+    [DisplayFormat(DataFormatString = "0.0000#")]
     [JsonPropertyName("unitPrice")]
     public decimal UnitPrice { get; set; }
 
