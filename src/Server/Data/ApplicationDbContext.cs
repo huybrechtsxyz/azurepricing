@@ -27,10 +27,6 @@ namespace AzureApp.Server.Data
 
         public DbSet<Resource>? Resources { get; set; }
 
-        public DbSet<ResourceLimit>? ResourceLimits { get; set; }
-
-        public DbSet<ResourceLink>? ResourceLinks { get; set; }
-
         public DbSet<ResourceRate>? ResourceRates { get; set; }
 
         public DbSet<ResourceUnit>? ResourceUnits { get; set; }

@@ -41,6 +41,21 @@ public class Resource
     [Comment("Resource cost is based on")]
     public string? CostBasedOn { get; set; }
 
+    [MaxLength(200)]
+    [DisplayName("Limitations")]
+    [Comment("Resource limitations")]
+    public string? Limitations { get; set; }
+
+    [MaxLength(500)]
+    [DisplayName("About Link")]
+    [Comment("About resource url")]
+    public string? AboutURL { get; set; }
+
+    [MaxLength(500)]
+    [DisplayName("Pricing Link")]
+    [Comment("Resource link url")]
+    public string? PricingURL { get; set; }
+
     [MaxLength(50)]
     [DisplayName("Service ID")]
     [Comment("Service id")]
@@ -82,10 +97,6 @@ public class Resource
     public bool IsSelected { get; set; } = false;
 
     public ICollection<ResourceRate>? ResourceRates { get; set; }
-
-    public ICollection<ResourceLimit>? ResourceLimits { get; set; }
-
-    public ICollection<ResourceLink>? ResourceLinks { get; set; }
 
     public void UpdateFields(Resource resource)
     {

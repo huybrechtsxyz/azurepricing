@@ -40,6 +40,21 @@
             <ValidationMessage For="@(() => model.CostBasedOn)" />
         </div>
         <div class="mb-3">
+            <label for="Limitations" class="form-label">Limitations</label>
+            <InputText @bind-Value="model.Limitations" class="form-control" disabled="true" />
+            <ValidationMessage For="@(() => model.Limitations)" />
+        </div>
+        <div class="mb-3">
+            <label for="AboutUrl" class="form-label">About Link</label>
+            <InputText @bind-Value="model.AboutURL" class="form-control" disabled="true" />
+            <ValidationMessage For="@(() => model.AboutURL)" />
+        </div>
+        <div class="mb-3">
+            <label for="PricingURL" class="form-label">Pricing Link</label>
+            <InputText @bind-Value="model.PricingURL" class="form-control" disabled="true" />
+            <ValidationMessage For="@(() => model.PricingURL)" />
+        </div>
+        <div class="mb-3">
             <label for="Service" class="form-label">Service</label>
             <InputText @bind-Value="model.Service" class="form-control" disabled="true" />
             <ValidationMessage For="@(() => model.Service)" />
