@@ -13,6 +13,18 @@ public class ResourceUnit
     {
     }
 
+    public ResourceUnit(SetupDefaultUnit defaultUnit)
+    {
+        this.Id = 0;
+        this.ResourceId = 0;
+        this.ResourceRateId = 0;
+        this.SetupMeasureUnitId = defaultUnit.SetupMeasureUnitId;
+        this.AzureMeasure = defaultUnit.AzureMeasure;
+        this.UnitFactor = 1;
+        this.DefaultValue = 1;
+        this.Description = string.Empty;
+    }
+
     [Key]
     [Required]
     [DisplayName("Resource Unit ID")]

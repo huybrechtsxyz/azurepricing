@@ -14,6 +14,19 @@ public class SearchRate
     {
     }
 
+    public SearchRate(SearchRate searchRate, bool includeIdentifiers = false)
+    {
+        this.Id = 0;
+        this.ResourceId = 0;
+        this.IsSelected = false;
+        if (includeIdentifiers)
+        {
+            this.Id = searchRate.Id;
+            this.ResourceId = searchRate.ResourceId;
+        }
+        this.UpdateFields(searchRate);
+    }
+
     [Key]
     [Required]
     [DisplayName("Search Rate ID")]
@@ -139,6 +152,10 @@ public class SearchRate
     [DisplayName("Select")]
     [Comment("Selected?")]
     public bool IsSelected { get; set; } = false;
+
+    [NotMapped]
+    [DisplayName("Resource ID")]
+    public int ResourceId { get; set; } = 0;
 
     public void UpdateFields(SearchRate searchRate)
     {

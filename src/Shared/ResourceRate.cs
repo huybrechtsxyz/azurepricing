@@ -14,6 +14,14 @@ public class ResourceRate
     {
     }
 
+    public ResourceRate(SearchRate searchRate)
+    {
+        this.Name = "";
+        this.ResourceId = 0;
+        this.Resource = null!;
+        this.UpdateFields(searchRate);
+    }
+
     [Key]
     [Required]
     [DisplayName("Resource Rate ID")]
@@ -124,4 +132,27 @@ public class ResourceRate
     public bool? IsPrimaryRegion { get; set; }
 
     public ICollection<ResourceUnit>? ResourceUnits { get; set; }
+
+    public void UpdateFields(SearchRate searchRate)
+    {
+        this.ValidFrom = searchRate.ValidFrom;
+        this.ServiceId = searchRate.ServiceId;
+        this.Service = searchRate.Service;
+        this.Category = searchRate.Category;
+        this.Region = searchRate.Region;
+        this.Location = searchRate.Location;
+        this.CurrencyCode = searchRate.CurrencyCode;
+        this.RetailPrice = searchRate.RetailPrice;
+        this.UnitPrice = searchRate.UnitPrice;
+        this.MiminumUnits = searchRate.MiminumUnits;
+        this.UnitOfMeasure = searchRate.UnitOfMeasure;
+        this.ProductId = searchRate.ProductId;
+        this.Product = searchRate.Product;
+        this.MeterId = searchRate.MeterId;
+        this.MeterName = searchRate.MeterName;
+        this.SkuId = searchRate.SkuId;
+        this.Sku = searchRate.Sku;
+        this.Type = searchRate.Type;
+        this.IsPrimaryRegion = searchRate.IsPrimaryRegion;
+    }
 }

@@ -86,4 +86,19 @@ public class Resource
     public ICollection<ResourceLimit>? ResourceLimits { get; set; }
 
     public ICollection<ResourceLink>? ResourceLinks { get; set; }
+
+    public void UpdateFields(Resource resource)
+    {
+        this.Name = resource.Name;
+        this.Description = resource.Description;
+        this.CostDriver = resource.CostDriver;
+        this.CostBasedOn = resource.CostBasedOn;
+        this.ServiceId = resource.ServiceId;
+        this.Service = resource.Service;
+        this.Category = resource.Category;
+        this.ProductId = resource.ProductId;
+        this.Product = resource.Product;
+        this.Size = resource.Size;
+        this.Remarks = resource.Remarks;
+    }
 }

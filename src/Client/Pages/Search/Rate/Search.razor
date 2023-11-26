@@ -136,7 +136,15 @@
                 <thead>
                     <tr>
                         <th> </th>
-                        <th>Resource</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>CostDriver</th>
+                        <th>CostBasedOn</th>
+                        <th>Service</th>
+                        <th>Category</th>
+                        <th>Product</th>
+                        <th>Size</th>
+                        <th>Remarks</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -145,6 +153,14 @@
                         <tr>
                             <td><InputCheckbox @bind-Value="item.IsSelected" class="form-check" /></td>
                             <td>@item.Name</td>
+                            <td>@item.Description</td>
+                            <td>@item.CostDriver</td>
+                            <td>@item.CostBasedOn</td>
+                            <td>@item.Service</td>
+                            <td>@item.Category</td>
+                            <td>@item.Product</td>
+                            <td>@item.Size</td>
+                            <td>@item.Remarks</td>
                         </tr>
                     }
                 </tbody>
@@ -183,14 +199,14 @@
         parameters = new();
         searchContext = new(parameters);
         searchStore = new(searchContext);
-        parameters.Service = (services.Length > 0 ? services[0].Name : string.Empty);
-        parameters.Location = (locations.Length > 0 ? locations[0].Name : string.Empty);
-        parameters.CurrencyCode = (currencies.Length > 0 ? currencies[0].Code : string.Empty);
 
         // Initial data
         services = await Http.GetFromJsonAsync<SetupService[]>($"{nameof(SearchRate)}/services") ?? Array.Empty<SetupService>();
         locations = await Http.GetFromJsonAsync<SetupLocation[]>($"{nameof(SearchRate)}/locations") ?? Array.Empty<SetupLocation>();
         currencies = await Http.GetFromJsonAsync<SetupCurrency[]>($"{nameof(SearchRate)}/currencies") ?? Array.Empty<SetupCurrency>();
+        parameters.Service = (services.Length > 0 ? services[0].Name : string.Empty);
+        parameters.Location = (locations.Length > 0 ? locations[0].Name : string.Empty);
+        parameters.CurrencyCode = (currencies.Length > 0 ? currencies[0].Code : string.Empty);
 
         // Search Results
         model = Array.Empty<SearchRate>();
@@ -234,10 +250,46 @@
 
     private async Task ImportRates()
     { 
+        if (model is null || editContext is null)
+            return;
 
+        List<SearchRate> copies = new();
+        foreach (var resx in resources.ToList().Where(q => q.IsSelected == true))
+        {
+            foreach(var item in selection)
+            {
+                SearchRate rate = new(item, false)
+                {
+                    ResourceId = resx.Id
+                };
+                copies.Add(rate);
+            }
+        }
 
+        var response = await Http.PostAsJsonAsync<SearchRate[]>($"{nameof(SearchRate)}/import", copies.ToArray());
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/resource");
+            return;
+        }
 
-        //await Http.PostAsJsonAsync<SearchRate[]>($"{nameof(SearchRate)}/import", selection.ToArray());
-        //NavigationManager.NavigateTo("/");
+        if (messageStore is not null && editContext is not null)
+        {
+            var errors = await response.Content.ReadFromJsonAsync<Dictionary<string, List<string>>>() ?? new();
+            if (errors.Any())
+            {
+                foreach (var keyValuePair in errors)
+                {
+                    foreach (var msg in keyValuePair.Value)
+                    {
+                        messageStore.Add(editContext.Field(keyValuePair.Key), msg);
+                    }
+                }
+            }
+
+            editContext.Validate();
+        }
+
+        StateHasChanged();
     }
 }
