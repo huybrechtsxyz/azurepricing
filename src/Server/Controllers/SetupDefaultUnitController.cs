@@ -30,7 +30,7 @@ namespace AzureApp.Server.Controllers
 
             var model = await _dbset
                 .Include(i => i.SetupMeasureUnit)
-                .OrderBy(o => o.AzureMeasure)
+                .OrderBy(o => o.UnitOfMeasure)
                 .ThenBy(o => o.SetupMeasureUnit.Name)
                 .ToListAsync();
             return Ok(model);
@@ -70,6 +70,15 @@ namespace AzureApp.Server.Controllers
             if (_dbset is null)
                 return StatusCode(500, Array.Empty<SetupDefaultUnit>());
 
+            if (model.SetupMeasureUnitId == 0 ||
+                model.SetupMeasureUnit is null ||
+                model.SetupMeasureUnit.Id == 0 ||
+                string.IsNullOrEmpty(model.SetupMeasureUnit.Name))
+            {
+                ModelState.AddModelError(nameof(model.SetupMeasureUnitId), "Measuring unit is required");
+                return BadRequest(ModelState);
+            }
+
             var item = await _dbset.FindAsync(model.Id);
             if (item is not null)
             {
@@ -77,10 +86,9 @@ namespace AzureApp.Server.Controllers
                 return BadRequest(ModelState);
             }
 
-            item = new();
+            item = new(model);
             item.Id = 0;
-            item.AzureMeasure = model.AzureMeasure;
-            item.SetupMeasureUnitId = model.SetupMeasureUnitId;
+            item.UnitOfMeasure = model.UnitOfMeasure;
             await _dbset.AddAsync(item);
             await _context.SaveChangesAsync();
             return Ok();
@@ -99,7 +107,10 @@ namespace AzureApp.Server.Controllers
                 return BadRequest(ModelState);
             }
 
-            item.AzureMeasure = model.AzureMeasure;
+            item.UnitOfMeasure = model.UnitOfMeasure;
+            item.UnitFactor = model.UnitFactor;
+            item.DefaultValue = model.DefaultValue;
+            item.Description = model.Description;
             item.SetupMeasureUnitId = model.SetupMeasureUnitId;
             _context.Entry(item).State = EntityState.Modified;
             await _context.SaveChangesAsync();

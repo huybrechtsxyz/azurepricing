@@ -89,6 +89,11 @@ namespace AzureApp.Server.Migrations
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Proposal")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasComment("Component proposal");
+
                     b.Property<string>("Remark")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)")
@@ -100,7 +105,8 @@ namespace AzureApp.Server.Migrations
                         .HasComment("Component resource group");
 
                     b.Property<int>("ResourceId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasComment("Resource");
 
                     b.Property<string>("Subscription")
                         .HasMaxLength(100)
@@ -124,6 +130,11 @@ namespace AzureApp.Server.Migrations
                         .HasComment("Primary Key");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasComment("Design description");
 
                     b.Property<string>("Environment")
                         .HasMaxLength(100)
@@ -155,44 +166,35 @@ namespace AzureApp.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<string>("ComponentName")
+                    b.Property<string>("Category")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)")
-                        .HasComment("Component name");
+                        .HasComment("Service category");
+
+                    b.Property<string>("ComponentOwner")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasComment("Component owner");
 
                     b.Property<decimal>("Cost")
                         .HasPrecision(12, 4)
                         .HasColumnType("decimal(12,4)")
                         .HasComment("Estimated cost");
 
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2")
-                        .HasComment("Estimate created on");
-
-                    b.Property<string>("CurrencyCode")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
-                        .HasComment("Currency code");
-
-                    b.Property<string>("DesignName")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasComment("Design name");
-
-                    b.Property<string>("Environment")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasComment("Design environment");
-
                     b.Property<string>("Location")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)")
-                        .HasComment("Location name");
+                        .HasComment("Component location");
 
-                    b.Property<string>("MeasuringUnitCode")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasComment("Measuring unit");
+                    b.Property<string>("MeterName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasComment("Meter name");
+
+                    b.Property<decimal>("MiminumUnits")
+                        .HasPrecision(12, 4)
+                        .HasColumnType("decimal(12,4)")
+                        .HasComment("Tier miminum units");
 
                     b.Property<decimal>("OwnCost")
                         .HasPrecision(12, 4)
@@ -203,16 +205,37 @@ namespace AzureApp.Server.Migrations
                         .HasColumnType("int")
                         .HasComment("Component % owned");
 
-                    b.Property<int>("ProjectComponentId")
+                    b.Property<string>("Product")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasComment("Product");
+
+                    b.Property<string>("ProductSku")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasComment("Sku name");
+
+                    b.Property<int?>("ProjectComponentId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProjectDesignId")
+                    b.Property<string>("ProjectComponentName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasComment("Component name");
+
+                    b.Property<int?>("ProjectDesignId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProjectId")
+                    b.Property<string>("ProjectDesignName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasComment("Design name");
+
+                    b.Property<int?>("ProjectId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProjectMeasureId")
+                    b.Property<int?>("ProjectMeasureId")
                         .HasColumnType("int");
 
                     b.Property<string>("ProjectName")
@@ -220,18 +243,33 @@ namespace AzureApp.Server.Migrations
                         .HasColumnType("nvarchar(100)")
                         .HasComment("Project name");
 
-                    b.Property<int>("ProjectScenarioId")
+                    b.Property<int?>("ProjectScenarioId")
                         .HasColumnType("int");
+
+                    b.Property<string>("ProjectScenarioName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasComment("Scenario name");
 
                     b.Property<int>("ProjectSimulationId")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(12, 4)
+                        .HasColumnType("decimal(12,4)")
+                        .HasComment("Estimate Quantity");
+
+                    b.Property<string>("RateType")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasComment("Rate type");
 
                     b.Property<string>("ResourceGroup")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)")
                         .HasComment("Component resource group");
 
-                    b.Property<int>("ResourceId")
+                    b.Property<int?>("ResourceId")
                         .HasColumnType("int");
 
                     b.Property<string>("ResourceName")
@@ -239,27 +277,44 @@ namespace AzureApp.Server.Migrations
                         .HasColumnType("nvarchar(100)")
                         .HasComment("Resource name");
 
-                    b.Property<int>("ResourceRateId")
+                    b.Property<int?>("ResourceRateId")
                         .HasColumnType("int");
 
                     b.Property<string>("ResourceRateName")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)")
                         .HasComment("Resource rate name");
 
-                    b.Property<string>("ScenarioName")
-                        .IsRequired()
+                    b.Property<decimal>("RetailPrice")
+                        .HasPrecision(12, 4)
+                        .HasColumnType("decimal(12,4)")
+                        .HasComment("Retail price");
+
+                    b.Property<string>("Service")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)")
-                        .HasComment("Scenario name");
+                        .HasComment("Service name");
 
-                    b.Property<int>("SetupMeasureUnitId")
-                        .HasColumnType("int");
+                    b.Property<string>("Size")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasComment("Resource size");
 
                     b.Property<string>("Subscription")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)")
                         .HasComment("Component subscription");
+
+                    b.Property<string>("UnitOfMeasure")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasComment("Azure rate unit of measure");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasPrecision(12, 4)
+                        .HasColumnType("decimal(12,4)")
+                        .HasComment("Unit price");
 
                     b.HasKey("Id");
 
@@ -304,6 +359,12 @@ namespace AzureApp.Server.Migrations
                     b.Property<int>("SetupMeasureUnitId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Variable")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasComment("Measure variable");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ProjectComponentId");
@@ -321,6 +382,11 @@ namespace AzureApp.Server.Migrations
                         .HasComment("Primary Key");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasComment("Scenario description");
 
                     b.Property<int>("DimObjectSize")
                         .HasColumnType("int")
@@ -367,16 +433,46 @@ namespace AzureApp.Server.Migrations
                         .HasColumnType("datetime2")
                         .HasComment("Estimate created on");
 
+                    b.Property<string>("CurrencyCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasComment("Currency code");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasComment("Simulation name");
+
+                    b.Property<string>("Environment")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasComment("Design environment");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasComment("Location name");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)")
                         .HasComment("Simulation name");
 
+                    b.Property<int?>("ProjectDesignId")
+                        .HasColumnType("int");
+
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Proposal")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasComment("Simulation for proposal");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ProjectDesignId");
 
                     b.HasIndex("ProjectId");
 
@@ -513,8 +609,8 @@ namespace AzureApp.Server.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
                         .HasComment("Resource rate name");
 
                     b.Property<string>("Product")
@@ -595,12 +691,6 @@ namespace AzureApp.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<string>("AzureMeasure")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasComment("Azure rate unit of measure");
-
                     b.Property<decimal>("DefaultValue")
                         .HasPrecision(12, 4)
                         .HasColumnType("decimal(12,4)")
@@ -619,12 +709,19 @@ namespace AzureApp.Server.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("SetupMeasureUnitId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasComment("System Unit");
 
                     b.Property<decimal>("UnitFactor")
                         .HasPrecision(12, 4)
                         .HasColumnType("decimal(12,4)")
                         .HasComment("Rate conversion factor");
+
+                    b.Property<string>("UnitOfMeasure")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasComment("Azure rate unit of measure");
 
                     b.HasKey("Id");
 
@@ -763,14 +860,31 @@ namespace AzureApp.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<string>("AzureMeasure")
+                    b.Property<decimal>("DefaultValue")
+                        .HasPrecision(12, 4)
+                        .HasColumnType("decimal(12,4)")
+                        .HasComment("Default unit rate");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasComment("Measuring unit description");
+
+                    b.Property<int>("SetupMeasureUnitId")
+                        .HasColumnType("int")
+                        .HasComment("System Unit");
+
+                    b.Property<decimal>("UnitFactor")
+                        .HasPrecision(12, 4)
+                        .HasColumnType("decimal(12,4)")
+                        .HasComment("Rate conversion factor");
+
+                    b.Property<string>("UnitOfMeasure")
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)")
                         .HasComment("Azure rate unit of measure");
-
-                    b.Property<int>("SetupMeasureUnitId")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -808,7 +922,7 @@ namespace AzureApp.Server.Migrations
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)")
-                        .HasComment("Measuring unit");
+                        .HasComment("System unit");
 
                     b.HasKey("Id");
 
@@ -843,8 +957,8 @@ namespace AzureApp.Server.Migrations
 
             modelBuilder.Entity("AzureApp.Shared.ProjectComponent", b =>
                 {
-                    b.HasOne("AzureApp.Shared.ProjectDesign", "ProjectDesign")
-                        .WithMany("Components")
+                    b.HasOne("AzureApp.Shared.ProjectDesign", null)
+                        .WithMany("ProjectComponents")
                         .HasForeignKey("ProjectDesignId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -855,37 +969,31 @@ namespace AzureApp.Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ProjectDesign");
-
                     b.Navigation("Resource");
                 });
 
             modelBuilder.Entity("AzureApp.Shared.ProjectDesign", b =>
                 {
-                    b.HasOne("AzureApp.Shared.Project", "Project")
+                    b.HasOne("AzureApp.Shared.Project", null)
                         .WithMany("ProjectDesigns")
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("AzureApp.Shared.ProjectEstimate", b =>
                 {
-                    b.HasOne("AzureApp.Shared.ProjectSimulation", "ProjectSimulation")
+                    b.HasOne("AzureApp.Shared.ProjectSimulation", null)
                         .WithMany("Estimates")
                         .HasForeignKey("ProjectSimulationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("ProjectSimulation");
                 });
 
             modelBuilder.Entity("AzureApp.Shared.ProjectMeasure", b =>
                 {
-                    b.HasOne("AzureApp.Shared.ProjectComponent", "ProjectComponent")
-                        .WithMany("Measures")
+                    b.HasOne("AzureApp.Shared.ProjectComponent", null)
+                        .WithMany("ProjectMeasures")
                         .HasForeignKey("ProjectComponentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -896,47 +1004,45 @@ namespace AzureApp.Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ProjectComponent");
-
                     b.Navigation("SetupMeasureUnit");
                 });
 
             modelBuilder.Entity("AzureApp.Shared.ProjectScenario", b =>
                 {
-                    b.HasOne("AzureApp.Shared.Project", "Project")
+                    b.HasOne("AzureApp.Shared.Project", null)
                         .WithMany("ProjectScenarios")
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("AzureApp.Shared.ProjectSimulation", b =>
                 {
-                    b.HasOne("AzureApp.Shared.Project", "Project")
+                    b.HasOne("AzureApp.Shared.ProjectDesign", "ProjectDesign")
+                        .WithMany()
+                        .HasForeignKey("ProjectDesignId");
+
+                    b.HasOne("AzureApp.Shared.Project", null)
                         .WithMany("ProjectSimulations")
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Project");
+                    b.Navigation("ProjectDesign");
                 });
 
             modelBuilder.Entity("AzureApp.Shared.ResourceRate", b =>
                 {
-                    b.HasOne("AzureApp.Shared.Resource", "Resource")
+                    b.HasOne("AzureApp.Shared.Resource", null)
                         .WithMany("ResourceRates")
                         .HasForeignKey("ResourceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Resource");
                 });
 
             modelBuilder.Entity("AzureApp.Shared.ResourceUnit", b =>
                 {
-                    b.HasOne("AzureApp.Shared.ResourceRate", "ResourceRate")
+                    b.HasOne("AzureApp.Shared.ResourceRate", null)
                         .WithMany("ResourceUnits")
                         .HasForeignKey("ResourceRateId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -947,8 +1053,6 @@ namespace AzureApp.Server.Migrations
                         .HasForeignKey("SetupMeasureUnitId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("ResourceRate");
 
                     b.Navigation("SetupMeasureUnit");
                 });
@@ -975,12 +1079,12 @@ namespace AzureApp.Server.Migrations
 
             modelBuilder.Entity("AzureApp.Shared.ProjectComponent", b =>
                 {
-                    b.Navigation("Measures");
+                    b.Navigation("ProjectMeasures");
                 });
 
             modelBuilder.Entity("AzureApp.Shared.ProjectDesign", b =>
                 {
-                    b.Navigation("Components");
+                    b.Navigation("ProjectComponents");
                 });
 
             modelBuilder.Entity("AzureApp.Shared.ProjectSimulation", b =>

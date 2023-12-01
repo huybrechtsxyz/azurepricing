@@ -13,25 +13,37 @@ public class ProjectMeasure
     {
     }
 
+    public ProjectMeasure(ProjectComponent component)
+    {
+        this.ProjectId = component.ProjectId;
+        this.ProjectDesignId = component.ProjectDesignId;
+        this.ProjectComponentId = component.Id;
+    }
+
+    public ProjectMeasure(ProjectMeasure measure)
+    {
+        UpdateFields(measure);
+    }
+
     [Key]
     [Required]
     [DisplayName("Measure ID")]
     [Comment("Primary Key")]
     public int Id { get; set; }
 
-    [Required]
     public int ProjectId { get; set; }
 
-    [Required]
     public int ProjectDesignId { get; set; }
 
-    [Required]
-    public ProjectComponent ProjectComponent { get; set; } = new();
     public int ProjectComponentId { get; set; }
 
-    [Required]
-    public SetupMeasureUnit SetupMeasureUnit { get; set; } = new();
     public int SetupMeasureUnitId { get; set; }
+    public SetupMeasureUnit SetupMeasureUnit { get; set; } = new();
+
+    [MaxLength(200)]
+    [DisplayName("Variable")]
+    [Comment("Measure variable")]
+    public string Variable { get; set; } = string.Empty;
 
     [MaxLength(200)]
     [DisplayName("Expression")]
@@ -47,4 +59,19 @@ public class ProjectMeasure
     [DisplayName("Remark")]
     [Comment("Measure Remark")]
     public string? Remark { get; set; }
+
+    [NotMapped]
+    public double CalcQuantity = 0;
+
+    public void UpdateFields(ProjectMeasure measure)
+    {
+        this.ProjectId = measure.ProjectId;
+        this.ProjectDesignId = measure.ProjectDesignId;
+        this.ProjectComponentId = measure.ProjectComponentId;
+        this.SetupMeasureUnitId = measure.SetupMeasureUnitId;
+        this.Variable = measure.Variable;
+        this.Expression = measure.Expression;
+        this.Description = measure.Description;
+        this.Remark = measure.Remark;
+    }
 }

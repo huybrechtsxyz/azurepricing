@@ -1,4 +1,5 @@
-﻿using AzureApp.Server.Data;
+﻿using AzureApp.Client.Pages.Resources.Resource;
+using AzureApp.Server.Data;
 using AzureApp.Server.Services;
 using AzureApp.Shared;
 using Microsoft.AspNetCore.Mvc;
@@ -61,11 +62,11 @@ namespace AzureApp.Server.Controllers
         public async Task<IActionResult> GetResources()
         {
             if (_context.Resources is null)
-                return StatusCode(500, Array.Empty<Resource>());
+                return StatusCode(500, Array.Empty<AzureApp.Shared.Resource>());
             var model = await _context.Resources.OrderBy(o => o.Name).ToListAsync();
             if (model is null)
                 model = new();
-            model.Insert(0, new Resource()
+            model.Insert(0, new AzureApp.Shared.Resource()
             {
                 Name = "<New Resource>"
             });
@@ -99,49 +100,49 @@ namespace AzureApp.Server.Controllers
         [HttpPost("import")]
         public async Task<IActionResult> PostImport(List<SearchRate>? searchRates)
         {
-            if (searchRates is null)
+            if (searchRates is null ||
+                _context.Resources is null ||
+                _context.ResourceRates is null ||
+                _context.ResourceUnits is null ||
+                _context.SetupDefaultUnits is null ||
+                _context.SetupMeasureUnits is null)
                 return StatusCode(500, Array.Empty<SearchRate>());
 
-            List<SetupDefaultUnit> defaults = new();
-            if (_context.SetupDefaultUnits is not null)
-                defaults = await _context.SetupDefaultUnits.OrderBy(o => o.AzureMeasure).ThenBy(o => o.SetupMeasureUnit.Name).ToListAsync();
+            List<SetupDefaultUnit> defaults = await _context.SetupDefaultUnits.OrderBy(o => o.UnitOfMeasure).ThenBy(o => o.SetupMeasureUnit.Name).ToListAsync();
+            
+            AzureApp.Shared.Resource? newResx;
+            AzureApp.Shared.SearchRate? newRate = searchRates.FirstOrDefault(f => f.ResourceId == 0);
+            if (newRate is not null)
+            {
+                newResx = new AzureApp.Shared.Resource(newRate);
+                _context.Resources.Add(newResx);
+                await _context.SaveChangesAsync();
+                foreach(var item in searchRates.Where(q => q.ResourceId == 0))
+                    item.ResourceId = newResx.Id;
+            }
+
+            foreach (var item in searchRates)
+            {
+                ResourceRate rate = new(item);
+                _context.ResourceRates.Add(rate);
+                await _context.SaveChangesAsync();
+
+                foreach (var dft in defaults.Where(q => q.UnitOfMeasure == item.UnitOfMeasure))
+                {
+                    if (dft.SetupMeasureUnitId == 0 || dft.SetupMeasureUnit is null || string.IsNullOrEmpty(dft.SetupMeasureUnit.Name))
+                        continue;
+
+                    ResourceUnit unit = new(dft)
+                    {
+                        ResourceId = rate.ResourceId,
+                        ResourceRateId = rate.Id
+                    };
+                    _context.ResourceUnits.Add(unit);
+                    await _context.SaveChangesAsync();
+                }
+            }
 
             return Ok();
         }
     }
 }
-            /*
-
-            List<Resource> resources = new();
-            List<ResourceRate> rates = new();
-            List<ResourceUnit> units = new();
-
-
-
-            foreach(var item in searchRates)
-            {
-                if (!resources.Any(q => q.Id == item.ResourceId))
-                {
-                    resources.Add(new Resource()
-                    {
-                        Id = item.ResourceId
-                    });
-                }
-
-                ResourceRate rate = new ResourceRate(item)
-                {
-                    Name = item.Product + " - " + item.MeterName,
-                    ResourceId = item.ResourceId,
-                    Resource = null!,
-                    ResourceUnits = new List<ResourceUnit>()
-                };
-
-                foreach(var dft in defaults.Where(q => q.AzureMeasure == item.UnitOfMeasure))
-                {
-                    ResourceUnit unit = new ResourceUnit(dft);
-                    rate.ResourceUnits.Add(unit);
-                }
-
-                rates.Add(rate);
-            }
-            */

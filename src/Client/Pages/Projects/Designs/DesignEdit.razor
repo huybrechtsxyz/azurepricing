@@ -1,0 +1,102 @@
+﻿@page "/projectdesign/{projectid:int}/edit/{id:int}"
+@using AzureApp.Shared
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+
+<PageTitle>Project Design</PageTitle>
+
+<h1>Edit Design</h1>
+
+<p>Edit the design.</p>
+<p>
+    <a href="/projectdesign/@ProjectId" class="btn btn-light" role="button">
+        <span class="oi oi-arrow-left" aria-hidden="true"></span> Cancel
+    </a>
+</p>
+
+@if (@model is not null)
+{
+    <EditForm EditContext="@editContext" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="mb-3">
+            <label for="Name" class="form-label">Name</label>
+            <InputText @bind-Value="model.Name" class="form-control" />
+            <ValidationMessage For="@(() => model.Name)" />
+        </div>
+        <div class="mb-3">
+            <label for="Description" class="form-label">Description</label>
+            <InputText @bind-Value="model.Description" class="form-control" />
+            <ValidationMessage For="@(() => model.Description)" />
+        </div>
+        <div class="mb-3">
+            <label for="Environment" class="form-label">Environment</label>
+            <InputText @bind-Value="model.Environment" class="form-control" />
+            <ValidationMessage For="@(() => model.Environment)" />
+        </div>
+        <div>
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button class="btn btn-light" @onclick="CancelItem">Cancel</button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    private EditContext? editContext { get; set; }
+    private ValidationMessageStore? messageStore { get; set; }
+    private AzureApp.Shared.ProjectDesign? model { get; set; }
+    private string navigateBack = string.Empty;
+
+    [Parameter]
+    public int ProjectId { get; set; }
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        model = await Http.GetFromJsonAsync<AzureApp.Shared.ProjectDesign>($"{nameof(AzureApp.Shared.ProjectDesign)}/item/{Id}");
+        editContext = new(model!);
+        editContext.OnValidationRequested += HandleValidationRequested;
+        messageStore = new(editContext);
+        navigateBack = $"/projectdesign/{ProjectId}";
+    }
+
+    private void HandleValidationRequested(object? sender, ValidationRequestedEventArgs args)
+    {
+        messageStore!.Clear();
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (model is null || editContext is null || messageStore is null)
+            return;
+
+        var response = await Http.PutAsJsonAsync<AzureApp.Shared.ProjectDesign>(nameof(AzureApp.Shared.ProjectDesign), model);
+        if (response.IsSuccessStatusCode)
+        { 
+            NavigationManager.NavigateTo(navigateBack);
+            return;
+        }
+
+        var errors = await response.Content.ReadFromJsonAsync<Dictionary<string, List<string>>>() ?? new();
+        if (errors.Any())
+        {
+            foreach (var keyValuePair in errors)
+            {
+                foreach (var msg in keyValuePair.Value)
+                {
+                    messageStore.Add(editContext.Field(keyValuePair.Key), msg);
+                }
+            }
+        }
+        
+        editContext.Validate();
+        StateHasChanged();
+    }
+
+    private void CancelItem()
+    {
+        NavigationManager.NavigateTo(navigateBack);
+    }
+}

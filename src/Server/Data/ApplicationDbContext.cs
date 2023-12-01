@@ -11,6 +11,10 @@ namespace AzureApp.Server.Data
         {
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+        }
+
         public DbSet<Project>? Projects { get; set; }
 
         public DbSet<ProjectScenario>? ProjectScenarios { get; set; }

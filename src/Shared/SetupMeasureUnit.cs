@@ -9,6 +9,8 @@ namespace AzureApp.Shared;
 [Table("SetupMeasuringUnit")]
 public class SetupMeasureUnit
 {
+    public static SetupMeasureUnit GetDefaultSetupMeasureUnit() => new() { Name = "Default" };
+
     public SetupMeasureUnit()
     {
     }
@@ -21,7 +23,7 @@ public class SetupMeasureUnit
 
     [Required]
     [MaxLength(30)]
-    [DisplayName("Measuring Unit")]
-    [Comment("Measuring unit")]
-    public string Name { get; set; } = string.Empty;
+    [DisplayName("System Unit")]
+    [Comment("System unit")]
+    public string Name { get; set; } = null!;
 }

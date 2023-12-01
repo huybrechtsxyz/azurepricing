@@ -20,14 +20,29 @@
         <DataAnnotationsValidator />
         <ValidationSummary />
         <div class="mb-3">
-            <label for="AzureMeasure" class="form-label">Azure Unit of Measure</label>
-            <InputText @bind-Value="model.AzureMeasure" class="form-control" disabled="true" />
-            <ValidationMessage For="@(() => model.AzureMeasure)" />
+            <label for="UnitOfMeasure" class="form-label">Unit of Measure</label>
+            <InputText @bind-Value="model.UnitOfMeasure" class="form-control" disabled="true" />
+            <ValidationMessage For="@(() => model.UnitOfMeasure)" />
         </div>
         <div class="mb-3">
-            <label for="SetupMeasureUnitId" class="form-label">Measuring Unit Id</label>
+            <label for="SetupMeasureUnitId" class="form-label">System Unit</label>
             <InputText @bind-Value="model.SetupMeasureUnit.Name" class="form-control" disabled="true" />
             <ValidationMessage For="@(() => model.SetupMeasureUnitId)" />
+        </div>
+        <div class="mb-3">
+            <label for="UnitFactor" class="form-label">Unit Factor</label>
+            <InputNumber @bind-Value="model.UnitFactor" class="form-control" disabled="true" />
+            <ValidationMessage For="@(() => model.UnitFactor)" />
+        </div>
+        <div class="mb-3">
+            <label for="DefaultValue" class="form-label">Default Value</label>
+            <InputNumber @bind-Value="model.DefaultValue" class="form-control" disabled="true" />
+            <ValidationMessage For="@(() => model.DefaultValue)" />
+        </div>
+        <div class="mb-3">
+            <label for="Description" class="form-label">Description</label>
+            <InputText @bind-Value="model.Description" class="form-control" disabled="true" />
+            <ValidationMessage For="@(() => model.Description)" />
         </div>
         <div>
             <button type="submit" class="btn btn-primary">Delete</button>

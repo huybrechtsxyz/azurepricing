@@ -14,11 +14,46 @@ public class ResourceRate
     {
     }
 
+    public ResourceRate(Resource resource)
+    {
+        this.ResourceId = resource.Id;
+        this.ServiceId = resource.ServiceId;
+        this.Service = resource.Service;
+        this.Category = resource.Category;
+        this.ProductId = resource.ProductId;
+        this.Product = resource.Product;
+    }
+
+    public ResourceRate(ResourceRate resourceRate)
+    {
+        UpdateFields(resourceRate);
+    }
+
     public ResourceRate(SearchRate searchRate)
     {
-        this.Name = "";
-        this.ResourceId = 0;
-        this.UpdateFields(searchRate);
+        this.ResourceId = searchRate.ResourceId; 
+        this.Name = searchRate.Product + " - " + searchRate.MeterName;
+        if (this.Name.Length > 100)
+            this.Name = this.Name[..100];
+        this.ValidFrom = searchRate.ValidFrom;
+        this.ServiceId = searchRate.ServiceId;
+        this.Service = searchRate.Service;
+        this.Category = searchRate.Category;
+        this.Region = searchRate.Region;
+        this.Location = searchRate.Location;
+        this.CurrencyCode = searchRate.CurrencyCode;
+        this.RetailPrice = searchRate.RetailPrice;
+        this.UnitPrice = searchRate.UnitPrice;
+        this.MiminumUnits = searchRate.MiminumUnits;
+        this.UnitOfMeasure = searchRate.UnitOfMeasure;
+        this.ProductId = searchRate.ProductId;
+        this.Product = searchRate.Product;
+        this.MeterId = searchRate.MeterId;
+        this.MeterName = searchRate.MeterName;
+        this.SkuId = searchRate.SkuId;
+        this.Sku = searchRate.Sku;
+        this.Type = searchRate.Type;
+        this.IsPrimaryRegion = searchRate.IsPrimaryRegion;
     }
 
     [Key]
@@ -30,7 +65,7 @@ public class ResourceRate
     public int ResourceId { get; set; }
 
     [Required]
-    [MaxLength(50)]
+    [MaxLength(100)]
     [DisplayName("Name")]
     [Comment("Resource rate name")]
     public string Name { get; set; } = string.Empty;
@@ -128,28 +163,33 @@ public class ResourceRate
     [Comment("Is primary meter region")]
     public bool? IsPrimaryRegion { get; set; }
 
+    [NotMapped]
+    public bool IsPrimaryRegionNN { get { return IsPrimaryRegion ?? false; } set { IsPrimaryRegion = value; } }
+
     public ICollection<ResourceUnit>? ResourceUnits { get; set; }
 
-    public void UpdateFields(SearchRate searchRate)
+    public void UpdateFields(ResourceRate resourceRate)
     {
-        this.ValidFrom = searchRate.ValidFrom;
-        this.ServiceId = searchRate.ServiceId;
-        this.Service = searchRate.Service;
-        this.Category = searchRate.Category;
-        this.Region = searchRate.Region;
-        this.Location = searchRate.Location;
-        this.CurrencyCode = searchRate.CurrencyCode;
-        this.RetailPrice = searchRate.RetailPrice;
-        this.UnitPrice = searchRate.UnitPrice;
-        this.MiminumUnits = searchRate.MiminumUnits;
-        this.UnitOfMeasure = searchRate.UnitOfMeasure;
-        this.ProductId = searchRate.ProductId;
-        this.Product = searchRate.Product;
-        this.MeterId = searchRate.MeterId;
-        this.MeterName = searchRate.MeterName;
-        this.SkuId = searchRate.SkuId;
-        this.Sku = searchRate.Sku;
-        this.Type = searchRate.Type;
-        this.IsPrimaryRegion = searchRate.IsPrimaryRegion;
+        this.ResourceId = resourceRate.ResourceId;
+        this.Name = resourceRate.Name;
+        this.ValidFrom = resourceRate.ValidFrom;
+        this.ServiceId = resourceRate.ServiceId;
+        this.Service = resourceRate.Service;
+        this.Category = resourceRate.Category;
+        this.Region = resourceRate.Region;
+        this.Location = resourceRate.Location;
+        this.CurrencyCode = resourceRate.CurrencyCode;
+        this.RetailPrice = resourceRate.RetailPrice;
+        this.UnitPrice = resourceRate.UnitPrice;
+        this.MiminumUnits = resourceRate.MiminumUnits;
+        this.UnitOfMeasure = resourceRate.UnitOfMeasure;
+        this.ProductId = resourceRate.ProductId;
+        this.Product = resourceRate.Product;
+        this.MeterId = resourceRate.MeterId;
+        this.MeterName = resourceRate.MeterName;
+        this.SkuId = resourceRate.SkuId;
+        this.Sku = resourceRate.Sku;
+        this.Type = resourceRate.Type;
+        this.IsPrimaryRegion = resourceRate.IsPrimaryRegion;
     }
 }

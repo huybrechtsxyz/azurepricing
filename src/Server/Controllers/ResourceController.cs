@@ -44,9 +44,7 @@ namespace AzureApp.Server.Controllers
             if (_dbset is null)
                 return StatusCode(500, Array.Empty<Resource>());
 
-            var model = await _dbset
-                .Include(i => i.ResourceRates)
-                .FirstAsync(q => q.Id == id);
+            var model = await _dbset.FirstAsync(q => q.Id == id);
             if (model is null)
                 return NotFound();
 

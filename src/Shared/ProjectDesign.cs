@@ -13,14 +13,22 @@ public class ProjectDesign
     {
     }
 
+    public ProjectDesign(Project project)
+    {
+        this.ProjectId = project.Id;
+    }
+
+    public ProjectDesign(ProjectDesign design)
+    {
+        UpdateFields(design);
+    }
+
     [Key]
     [Required]
     [DisplayName("Design ID")]
     [Comment("Primary Key")]
     public int Id { get; set; }
 
-    [Required]
-    public Project Project { get; set; } = new();
     public int ProjectId { get; set; }
 
     [Required]
@@ -29,10 +37,23 @@ public class ProjectDesign
     [Comment("Design name")]
     public string Name { get; set; } = string.Empty;
 
+    [MaxLength(200)]
+    [DisplayName("Description")]
+    [Comment("Design description")]
+    public string? Description { get; set; }
+
     [MaxLength(100)]
     [DisplayName("Environment")]
     [Comment("Design environment")]
     public string? Environment { get; set; } = string.Empty;
 
-    public ICollection<ProjectComponent>? Components { get; set; }
+    public ICollection<ProjectComponent>? ProjectComponents { get; set; }
+
+    public void UpdateFields(ProjectDesign design)
+    {
+        this.ProjectId = design.ProjectId;
+        this.Name = design.Name;
+        this.Description = design.Description;
+        this.Environment = design.Environment;
+    }
 }

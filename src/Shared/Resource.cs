@@ -14,6 +14,27 @@ public class Resource
     {
     }
 
+    public Resource(SearchRate searchRate)
+    {
+        this.Name = searchRate.Product + " - " + searchRate.Sku;
+        if (this.Name.Length > 100)
+            this.Name = this.Name[..100];
+        this.Description = string.Empty;
+        this.CostDriver = string.Empty;
+        this.CostBasedOn = string.Empty;
+        this.ServiceId = searchRate.ServiceId;
+        this.Service = searchRate.Service;
+        this.Category = searchRate.Category;
+        this.ProductId = searchRate.ProductId;
+        this.Product = searchRate.Product;
+        this.Size = searchRate.Sku;
+        this.Remarks = string.Empty;
+        this.AboutURL = string.Empty;
+        this.PricingURL = string.Empty;
+        this.Limitations = string.Empty;
+    }
+
+
     [Key]
     [Required]
     [DisplayName("Resource ID")]
@@ -24,7 +45,7 @@ public class Resource
     [MaxLength(100)]
     [DisplayName("Name")]
     [Comment("Resource name")]
-    public string Name { get; set; } = String.Empty;
+    public string Name { get; set; } = string.Empty;
 
     [MaxLength(200)]
     [DisplayName("Description")]
@@ -110,6 +131,9 @@ public class Resource
         this.ProductId = resource.ProductId;
         this.Product = resource.Product;
         this.Size = resource.Size;
+        this.PricingURL = resource.PricingURL;
+        this.AboutURL = resource.AboutURL;
+        this.Limitations = resource.Limitations;
         this.Remarks = resource.Remarks;
     }
 }

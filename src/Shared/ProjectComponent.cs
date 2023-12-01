@@ -13,7 +13,21 @@ public class ProjectComponent
     {
     }
 
-    
+    public ProjectComponent(Project project)
+    {
+        this.ProjectId = project.Id;
+    }
+
+    public ProjectComponent(ProjectDesign design)
+    {
+        this.ProjectId = design.ProjectId;
+        this.ProjectDesignId = design.Id;
+    }
+
+    public ProjectComponent(ProjectComponent component)
+    {
+        UpdateFields(component);
+    }
 
 
     [Key]
@@ -22,22 +36,25 @@ public class ProjectComponent
     [Comment("Primary Key")]
     public int Id { get; set; }
 
-    [Required]
     public int ProjectId { get; set; }
 
-    [Required]
-    public ProjectDesign ProjectDesign { get; set; } = new();
     public int ProjectDesignId { get; set; }
 
-    [Required]
-    public Resource Resource { get; set; } = new();
+    [DisplayName("Resource")]
+    [Comment("Resource")]
     public int ResourceId { get; set; }
-
+    public Resource Resource { get; set; } = new();
+    
     [Required]
     [MaxLength(100)]
     [DisplayName("Name")]
     [Comment("Component name")]
     public string Name { get; set; } = string.Empty;
+
+    [MaxLength(100)]
+    [DisplayName("Proposal")]
+    [Comment("Component proposal")]
+    public string? Proposal { get; set; }
 
     [Required]
     [MaxLength(50)]
@@ -48,17 +65,17 @@ public class ProjectComponent
     [MaxLength(100)]
     [DisplayName("Subscription")]
     [Comment("Component subscription")]
-    public string? Subscription { get; set; } = string.Empty;
+    public string? Subscription { get; set; }
 
     [MaxLength(100)]
     [DisplayName("Resource Group")]
     [Comment("Component resource group")]
-    public string? ResourceGroup { get; set; } = string.Empty;
+    public string? ResourceGroup { get; set; }
 
     [MaxLength(100)]
     [DisplayName("Owner")]
     [Comment("Component owner")]
-    public string? Owner { get; set; } = string.Empty;
+    public string? Owner { get; set; }
 
     [DisplayName("% Owned")]
     [Comment("Component % owned")]
@@ -74,5 +91,21 @@ public class ProjectComponent
     [Comment("Component Remark")]
     public string? Remark { get; set; }
 
-    public ICollection<ProjectMeasure>? Measures { get; set; }
+    public ICollection<ProjectMeasure>? ProjectMeasures { get; set; }
+
+    public void UpdateFields(ProjectComponent component)
+    {
+        this.ProjectId = component.ProjectId;
+        this.ProjectDesignId = component.ProjectDesignId;
+        this.ResourceId = component.ResourceId;
+        this.Name = component.Name;
+        this.Proposal = component.Proposal;
+        this.Location = component.Location;
+        this.Subscription = component.Subscription;
+        this.ResourceGroup = component.ResourceGroup;
+        this.Owner = component.Owner;
+        this.Owned = component.Owned;
+        this.Description = component.Description;
+        this.Remark = component.Remark;
+    }
 }

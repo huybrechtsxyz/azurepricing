@@ -36,4 +36,11 @@ public class Project
     public ICollection<ProjectScenario>? ProjectScenarios { get; set; }
 
     public ICollection<ProjectSimulation>? ProjectSimulations { get; set; }
+
+    public void UpdateFields(Project project)
+    {
+        this.Name = project.Name;
+        this.CurrencyCode = project.CurrencyCode;
+    }
+
 }

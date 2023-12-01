@@ -1,0 +1,140 @@
+﻿@page "/projectmeasure/{projectid:int}/{designid:int}/{componentid:int}/edit/{id:int}"
+@using AzureApp.Shared
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+
+<PageTitle>Project Design Component Measure</PageTitle>
+
+<h1>Edit Measure</h1>
+
+<p>Edit the measure.</p>
+<p>
+    <a href="/projectmeasure/@ProjectId/@DesignId/@ComponentId" class="btn btn-light" role="button">
+        <span class="oi oi-arrow-left" aria-hidden="true"></span> Cancel
+    </a>
+</p>
+
+@if (@model is not null)
+{
+    <EditForm EditContext="@editContext" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="mb-3">
+            <label for="Variable" class="form-label">Variable</label>
+            <InputText @bind-Value="model.Variable" class="form-control" />
+            <ValidationMessage For="@(() => model.Variable)" />
+        </div>
+        <div class="mb-3">
+            <label for="SetupMeasureUnitId" class="form-label">Measuring Unit</label>
+            <InputSelect @bind-Value="model.SetupMeasureUnitId" class="form-control">
+                @if (measureUnits is not null)
+                {
+                    @foreach (var option in measureUnits)
+                    {
+                        <option value="@option.Id">@option.Name</option>
+                    }
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => model.SetupMeasureUnitId)" />
+        </div>
+        <div class="mb-3">
+            <label for="Expression" class="form-label">Expression</label>
+            <InputText @bind-Value="model.Expression" class="form-control" />
+            <ValidationMessage For="@(() => model.Expression)" />
+        </div>
+        <div class="mb-3">
+            <label for="Description" class="form-label">Description</label>
+            <InputText @bind-Value="model.Description" class="form-control" />
+            <ValidationMessage For="@(() => model.Description)" />
+        </div>
+        <div class="mb-3">
+            <label for="Remark" class="form-label">Remark</label>
+            <InputText @bind-Value="model.Remark" class="form-control" />
+            <ValidationMessage For="@(() => model.Remark)" />
+        </div>
+        <div>
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button class="btn btn-light" @onclick="CancelItem">Cancel</button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    private EditContext? editContext { get; set; }
+    private ValidationMessageStore? messageStore { get; set; }
+    private AzureApp.Shared.ProjectComponent? parent { get; set; }
+    private AzureApp.Shared.ProjectMeasure? model { get; set; }
+    private AzureApp.Shared.SetupMeasureUnit[]? measureUnits = null!;
+    private string navigateBack = string.Empty;
+
+    [Parameter]
+    public int ProjectId { get; set; }
+
+    [Parameter]
+    public int DesignId { get; set; }
+
+    [Parameter]
+    public int ComponentId { get; set; }
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        measureUnits = await Http.GetFromJsonAsync<AzureApp.Shared.SetupMeasureUnit[]>($"{nameof(AzureApp.Shared.SetupMeasureUnit)}") ?? Array.Empty<AzureApp.Shared.SetupMeasureUnit>();
+        parent = await Http.GetFromJsonAsync<AzureApp.Shared.ProjectComponent>($"{nameof(AzureApp.Shared.ProjectComponent)}/item/{ComponentId}");
+        model = await Http.GetFromJsonAsync<AzureApp.Shared.ProjectMeasure>($"{nameof(AzureApp.Shared.ProjectMeasure)}/item/{Id}");
+        editContext = new(model!);
+        editContext.OnValidationRequested += HandleValidationRequested;
+        messageStore = new(editContext);
+        navigateBack = $"/projectmeasure/{ProjectId}/{DesignId}/{ComponentId}";
+    }
+
+    private void HandleValidationRequested(object? sender, ValidationRequestedEventArgs args)
+    {
+        messageStore!.Clear();
+
+        model!.SetupMeasureUnit = measureUnits!.ToList().FirstOrDefault(q => q.Id == model.SetupMeasureUnitId)!;
+        if (model.SetupMeasureUnitId == 0 ||
+            model.SetupMeasureUnit is null ||
+            model.SetupMeasureUnit.Id == 0 ||
+            string.IsNullOrEmpty(model.SetupMeasureUnit.Name))
+        {
+            messageStore.Add(editContext!.Field(nameof(model.SetupMeasureUnitId)), "Required selection");
+            return;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (model is null || editContext is null || messageStore is null)
+            return;
+
+        var response = await Http.PutAsJsonAsync<AzureApp.Shared.ProjectMeasure>(nameof(AzureApp.Shared.ProjectMeasure), model);
+        if (response.IsSuccessStatusCode)
+        { 
+            NavigationManager.NavigateTo(navigateBack);
+            return;
+        }
+
+        var errors = await response.Content.ReadFromJsonAsync<Dictionary<string, List<string>>>() ?? new();
+        if (errors.Any())
+        {
+            foreach (var keyValuePair in errors)
+            {
+                foreach (var msg in keyValuePair.Value)
+                {
+                    messageStore.Add(editContext.Field(keyValuePair.Key), msg);
+                }
+            }
+        }
+        
+        editContext.Validate();
+        StateHasChanged();
+    }
+
+    private void CancelItem()
+    {
+        NavigationManager.NavigateTo(navigateBack);
+    }
+}

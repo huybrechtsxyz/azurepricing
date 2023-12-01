@@ -1,4 +1,4 @@
-﻿@page "/resource/view/{id:int}"
+﻿@page "/resource/add"
 @using AzureApp.Shared
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
@@ -7,51 +7,51 @@
 
 <h1>Resources</h1>
 
-<p>Delete the resources.</p>
+<p>Create a new resouce.</p>
 <p>
     <a href="/resource" class="btn btn-light" role="button">
-        <span class="oi oi-arrow-left" aria-hidden="true"></span> Return
+        <span class="oi oi-arrow-left" aria-hidden="true"></span> Cancel
     </a>
 </p>
 
 @if (@model is not null)
 {
-    <EditForm EditContext="@viewContext">
+    <EditForm EditContext="@editContext" OnValidSubmit="HandleSubmit">
         <DataAnnotationsValidator />
         <ValidationSummary />
         <div class="mb-3">
             <label for="Name" class="form-label">Name</label>
-            <InputText @bind-Value="model.Name" class="form-control" disabled="true"/>
+            <InputText @bind-Value="model.Name" class="form-control" />
             <ValidationMessage For="@(() => model.Name)" />
         </div>
         <div class="mb-3">
             <label for="Description" class="form-label">Description</label>
-            <InputText @bind-Value="model.Description" class="form-control" disabled="true" />
+            <InputText @bind-Value="model.Description" class="form-control" />
             <ValidationMessage For="@(() => model.Description)" />
         </div>
         <div class="mb-3">
             <label for="CostDriver" class="form-label">Cost Driver</label>
-            <InputText @bind-Value="model.CostDriver" class="form-control" disabled="true" />
+            <InputText @bind-Value="model.CostDriver" class="form-control" />
             <ValidationMessage For="@(() => model.CostDriver)" />
         </div>
         <div class="mb-3">
             <label for="CostBasedOn" class="form-label">Cost is based on</label>
-            <InputText @bind-Value="model.CostBasedOn" class="form-control" disabled="true" />
+            <InputText @bind-Value="model.CostBasedOn" class="form-control" />
             <ValidationMessage For="@(() => model.CostBasedOn)" />
         </div>
         <div class="mb-3">
             <label for="Limitations" class="form-label">Limitations</label>
-            <InputText @bind-Value="model.Limitations" class="form-control" disabled="true" />
+            <InputText @bind-Value="model.Limitations" class="form-control" />
             <ValidationMessage For="@(() => model.Limitations)" />
         </div>
         <div class="mb-3">
             <label for="AboutUrl" class="form-label">About Link</label>
-            <InputText @bind-Value="model.AboutURL" class="form-control" disabled="true" />
+            <InputText @bind-Value="model.AboutURL" class="form-control" />
             <ValidationMessage For="@(() => model.AboutURL)" />
         </div>
         <div class="mb-3">
             <label for="PricingURL" class="form-label">Pricing Link</label>
-            <InputText @bind-Value="model.PricingURL" class="form-control" disabled="true" />
+            <InputText @bind-Value="model.PricingURL" class="form-control" />
             <ValidationMessage For="@(() => model.PricingURL)" />
         </div>
         <div class="mb-3">
@@ -71,76 +71,63 @@
         </div>
         <div class="mb-3">
             <label for="Size" class="form-label">Size</label>
-            <InputText @bind-Value="model.Size" class="form-control" disabled="true" />
+            <InputText @bind-Value="model.Size" class="form-control" disabled="true"/>
             <ValidationMessage For="@(() => model.Size)" />
         </div>
         <div class="mb-3">
             <label for="Remarks" class="form-label">Remarks</label>
-            <InputText @bind-Value="model.Remarks" class="form-control" disabled="true" />
+            <InputText @bind-Value="model.Remarks" class="form-control" />
             <ValidationMessage For="@(() => model.Remarks)" />
         </div>
         <div>
-            <button class="btn btn-light" @onclick="CancelItem">Return</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button class="btn btn-light" @onclick="CancelItem">Cancel</button>
         </div>
     </EditForm>
-    <hr />
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Resource</th>
-                <th>Sku</th>
-                <th>Meter</th>
-                <th>Retail Price</th>
-                <th>Minimum Units</th>
-                <th>Unit Of Measure</th>
-                <th>Type</th>
-                <th>Service</th>
-                <th>Category</th>
-                <th>Location</th>
-                <th>Currency</th>
-                <th>Primary?</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in model.ResourceRates)
-            {
-                <tr>
-                    <td>@item.Product</td>
-                    <td>@item.Sku</td>
-                    <td>@item.MeterName</td>
-                    <td>@item.RetailPrice</td>
-                    <td>@item.MiminumUnits</td>
-                    <td>@item.UnitOfMeasure</td>
-                    <td>@item.Type</td>
-                    <td>@item.Service</td>
-                    <td>@item.Category</td>
-                    <td>@item.Location</td>
-                    <td>@item.CurrencyCode</td>
-                    <td>@item.IsPrimaryRegion</td>
-                </tr>
-            }
-        </tbody>
-    </table>
 }
 
 @code {
-    private EditContext? viewContext { get; set; }
+    private EditContext? editContext { get; set; }
     private ValidationMessageStore? messageStore { get; set; }
     private AzureApp.Shared.Resource? model { get; set; }
 
-    [Parameter]
-    public int? Id { get; set; }
-
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        model = await Http.GetFromJsonAsync<AzureApp.Shared.Resource>($"{nameof(AzureApp.Shared.Resource)}/{Id}");
-        if (model is null)
-        {
-            Id = 0;
-            model = new();
+        model = new();
+        editContext = new(model);
+        messageStore = new(editContext);
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (model is null || editContext is null)
+            return;
+
+        var response = await Http.PostAsJsonAsync<AzureApp.Shared.Resource>(nameof(AzureApp.Shared.Resource), model);
+        if (response.IsSuccessStatusCode)
+        { 
+            NavigationManager.NavigateTo("/resource");
+            return;
         }
-        viewContext = new(model);
-        messageStore = new(viewContext);
+
+        if (messageStore is not null && editContext is not null)
+        {
+            var errors = await response.Content.ReadFromJsonAsync<Dictionary<string, List<string>>>() ?? new();
+            if (errors.Any())
+            {
+                foreach (var keyValuePair in errors)
+                {
+                    foreach(var msg in keyValuePair.Value) 
+                    {
+                        messageStore.Add(editContext.Field(keyValuePair.Key), msg);
+                    }
+                }
+            }
+
+            editContext.Validate();
+        }
+
+        StateHasChanged();
     }
 
     private void CancelItem()

@@ -13,16 +13,28 @@ public class ResourceUnit
     {
     }
 
+    public ResourceUnit(ResourceRate resourceRate)
+    {
+        this.ResourceId = resourceRate.ResourceId;
+        this.ResourceRateId = resourceRate.Id;
+        this.UnitOfMeasure = resourceRate.UnitOfMeasure ?? string.Empty;
+    }
+
+    public ResourceUnit(ResourceUnit resourceUnit)
+    {
+        UpdateFields(resourceUnit);
+    }
+
     public ResourceUnit(SetupDefaultUnit defaultUnit)
     {
         this.Id = 0;
         this.ResourceId = 0;
         this.ResourceRateId = 0;
         this.SetupMeasureUnitId = defaultUnit.SetupMeasureUnitId;
-        this.AzureMeasure = defaultUnit.AzureMeasure;
-        this.UnitFactor = 1;
-        this.DefaultValue = 1;
-        this.Description = string.Empty;
+        this.UnitOfMeasure = defaultUnit.UnitOfMeasure;
+        this.UnitFactor = defaultUnit.UnitFactor;
+        this.DefaultValue = defaultUnit.DefaultValue;
+        this.Description = defaultUnit.Description;
     }
 
     [Key]
@@ -35,15 +47,17 @@ public class ResourceUnit
 
     public int ResourceRateId { get; set; }
 
-    [Required]
-    public SetupMeasureUnit SetupMeasureUnit { get; set; } = new();
+    [DisplayName("System Unit")]
+    [Comment("System Unit")]
     public int SetupMeasureUnitId { get; set; }
 
+    public SetupMeasureUnit SetupMeasureUnit { get; set; } = new();
+    
     [Required]
     [MaxLength(30)]
     [DisplayName("Azure Unit of Measure")]
     [Comment("Azure rate unit of measure")]
-    public string AzureMeasure { get; set; } = String.Empty;
+    public string UnitOfMeasure { get; set; } = String.Empty;
 
     [Required]
     [Precision(12, 4)]
@@ -61,4 +75,15 @@ public class ResourceUnit
     [DisplayName("Description")]
     [Comment("Measuring unit description")]
     public string Description { get; set; } = string.Empty;
+
+    public void UpdateFields(ResourceUnit resourceUnit)
+    {
+        this.ResourceId = resourceUnit.ResourceId;
+        this.ResourceRateId = resourceUnit.ResourceRateId;
+        this.SetupMeasureUnitId = resourceUnit.SetupMeasureUnitId;
+        this.UnitOfMeasure = resourceUnit.UnitOfMeasure;
+        this.UnitFactor = resourceUnit.UnitFactor;
+        this.DefaultValue = resourceUnit.DefaultValue;
+        this.Description = resourceUnit.Description;
+    }
 }

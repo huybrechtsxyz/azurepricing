@@ -13,21 +13,29 @@ public class ProjectScenario
     {
     }
 
+    public ProjectScenario(Project project)
+    {
+        this.ProjectId = project.Id;
+    }
+
     [Key]
     [Required]
     [DisplayName("Scenario ID")]
     [Comment("Primary Key")]
     public int Id { get; set; }
 
-    [Required]
-    public Project Project { get; set; } = new();
     public int ProjectId { get; set; }
-
+    
     [Required]
     [MaxLength(100)]
     [DisplayName("Name")]
     [Comment("Scenario name")]
     public string Name { get; set; } = string.Empty;
+
+    [MaxLength(200)]
+    [DisplayName("Description")]
+    [Comment("Scenario description")]
+    public string? Description { get; set; }
 
     [DisplayName("# Objects")]
     [Comment("Scenario objects")]
@@ -46,14 +54,42 @@ public class ProjectScenario
     public int DimRequestFactor { get; set; } = 0;
 
     [NotMapped]
-    public decimal FactRequestsPerMonth => ((DimObjects * DimRequestFactor) / DimRequestSize / DimObjectSize);
+    [DisplayName("Requests per month")]
+    public decimal FactRequestsPerMonth => decimal.Round((DimRequestSize != 0 && DimObjectSize != 0 ? (((decimal)DimObjects * (decimal)DimRequestFactor) / ((decimal)DimRequestSize / (decimal)DimObjectSize)) : 0),4);
 
     [NotMapped]
-    public decimal FactBandwidthPerMonth => ( (DimRequestSize * FactRequestsPerMonth) / (1024 * 1024) );
+    [DisplayName("Bandwith per month")]
+    public decimal FactBandwidthPerMonth => decimal.Round((((decimal)DimRequestSize * (decimal)FactRequestsPerMonth) / (decimal)(1024 * 1024)),4);
 
     [NotMapped]
-    public decimal FactRequestsPerHour => (FactRequestsPerMonth / 730);
+    [DisplayName("Requests per hour")]
+    public decimal FactRequestsPerHour => decimal.Round((FactRequestsPerMonth / (decimal)730),4);
 
     [NotMapped]
-    public decimal FactBandwidthPerHour => (FactBandwidthPerMonth / 730);
+    [DisplayName("Bandwith per hour")]
+    public decimal FactBandwidthPerHour => decimal.Round((FactBandwidthPerMonth / (decimal)730),4);
+
+    public Dictionary<string, double> GetAsVariables()
+    {
+        return new Dictionary<string, double>()
+        {
+            { "objects" , this.DimObjects },
+            { "objectsize" , this.DimObjectSize },
+            { "requestsize" , this.DimRequestSize },
+            { "requestfactor" , this.DimRequestFactor },
+            { "requests" , (double)this.FactRequestsPerMonth },
+            { "bandwidth" , (double)this.FactBandwidthPerMonth }
+        };
+    }
+
+    public void UpdateFields(ProjectScenario scenario)
+    {
+        this.ProjectId = scenario.ProjectId;
+        this.Name = scenario.Name;
+        this.Description = scenario.Description;
+        this.DimObjects = scenario.DimObjects;
+        this.DimObjectSize = scenario.DimObjectSize;
+        this.DimRequestFactor = scenario.DimRequestFactor;
+        this.DimRequestSize = scenario.DimRequestSize;
+    }
 }

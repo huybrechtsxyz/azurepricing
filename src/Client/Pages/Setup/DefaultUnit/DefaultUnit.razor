@@ -19,8 +19,11 @@
     <table class="table">
         <thead>
             <tr>
-                <th>Azure Unit of Measure</th>
-                <th>Measuring Unit</th>
+                <th>Unit of Measure</th>
+                <th>System Unit</th>
+                <th>Unit Factor</th>
+                <th>Default Value</th>
+                <th>Description</th>
                 <th></th>
             </tr>
         </thead>
@@ -28,8 +31,11 @@
             @foreach (var item in Model)
             {
                 <tr>
-                    <td>@item.AzureMeasure</td>
+                    <td>@item.UnitOfMeasure</td>
                     <td>@item.SetupMeasureUnit.Name</td>
+                    <td>@item.UnitFactor</td>
+                    <td>@item.DefaultValue</td>
+                    <td>@item.Description</td>
                     <td>
                         <a href="/defaultunit/edit/@item.Id" class="btn btn-outline-dark" role="button">Edit</a>
                         <a href="/defaultunit/delete/@item.Id" class="btn btn-outline-dark" role="button">Delete</a>

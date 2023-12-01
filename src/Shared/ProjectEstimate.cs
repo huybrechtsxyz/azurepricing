@@ -13,39 +13,71 @@ public class ProjectEstimate
     {
     }
 
+    public ProjectEstimate(ProjectSimulation simulation)
+    {
+        this.ProjectId = simulation.ProjectId;
+        this.ProjectSimulationId = simulation.Id;
+    }
+
     [Key]
     [Required]
     [DisplayName("Estimate ID")]
     [Comment("Primary Key")]
     public int Id { get; set; }
 
-    [Required]
-    public int ProjectId { get; set; }
+    public int? ProjectId { get; set; }
 
-    [Required]
-    public ProjectSimulation ProjectSimulation { get; set; } = new();
     public int ProjectSimulationId { get; set; }
 
-    [Required]
-    public int ProjectDesignId { get; set; }
+    public int? ProjectDesignId { get; set; }
 
-    [Required]
-    public int ProjectComponentId { get; set; }
+    public int? ProjectComponentId { get; set; }
 
-    [Required]
-    public int ProjectMeasureId { get; set; }
+    [Obsolete]
+    public int? ProjectMeasureId { get; set; }
 
-    [Required]
-    public int ProjectScenarioId { get; set; }
+    public int? ProjectScenarioId { get; set; }
 
-    [Required]
-    public int SetupMeasureUnitId { get; set; }
+    public int? ResourceId { get; set; }
 
-    [Required]
-    public int ResourceId { get; set; }
+    public int? ResourceRateId { get; set; }
 
-    [Required]
-    public int ResourceRateId { get; set; }
+    //--------------------------------------------------------------------
+
+    [Precision(12, 4)]
+    [DisplayName("Quantity")]
+    [Comment("Estimate Quantity")]
+    public decimal Quantity { get; set; }
+
+    [Precision(12, 4)]
+    [DisplayName("Retail Price")]
+    [Comment("Retail price")]
+    public decimal RetailPrice { get; set; }
+
+    [Precision(12, 4)]
+    [DisplayName("Unit Price")]
+    [Comment("Unit price")]
+    public decimal UnitPrice { get; set; }
+
+    [Precision(12, 4)]
+    [DisplayName("Estimated Cost")]
+    [Comment("Estimated cost")]
+    public decimal Cost { get; set; } = 0;
+
+    [DisplayName("% Owned")]
+    [Comment("Component % owned")]
+    public int Owned { get; set; } = 0;
+
+    [Precision(12, 4)]
+    [DisplayName("Own Cost")]
+    [Comment("Own cost")]
+    public decimal OwnCost { get; set; } = 0;
+
+    public void CalculateCost()
+    {
+        this.Cost = decimal.Round(Quantity * RetailPrice, 2);
+        this.OwnCost = decimal.Round(Cost * (Owned / 100), 2);
+    }
 
     //--------------------------------------------------------------------
 
@@ -54,40 +86,76 @@ public class ProjectEstimate
     [Comment("Project name")]
     public string? ProjectName { get; set; }
 
-    [MaxLength(100)]
-    [DisplayName("Design")]
-    [Comment("Design name")]
-    public string? DesignName { get; set; }
+    public void SetProjectFields(Project project)
+    {
+        this.ProjectId = project.Id;
+        this.ProjectName = project.Name;
+    }
 
-    [MaxLength(100)]
-    [DisplayName("Environment")]
-    [Comment("Design environment")]
-    public string? Environment { get; set; } = string.Empty;
-
-    [MaxLength(100)]
-    [DisplayName("Component")]
-    [Comment("Component name")]
-    public string? ComponentName { get; set; }
-
-    [MaxLength(100)]
-    [DisplayName("Subscription")]
-    [Comment("Component subscription")]
-    public string? Subscription { get; set; } = string.Empty;
-
-    [MaxLength(100)]
-    [DisplayName("Resource Group")]
-    [Comment("Component resource group")]
-    public string? ResourceGroup { get; set; } = string.Empty;
+    //--------------------------------------------------------------------
 
     [MaxLength(100)]
     [DisplayName("Scenario")]
     [Comment("Scenario name")]
-    public string ScenarioName { get; set; } = string.Empty;
+    public string? ProjectScenarioName { get; set; }
 
-    [MaxLength(30)]
-    [DisplayName("Measuring Unit")]
-    [Comment("Measuring unit")]
-    public string? MeasuringUnitCode { get; set; }
+    public void SetProjectScenarioFields(ProjectScenario scenario)
+    {
+        this.ProjectScenarioId = scenario.Id;
+        this.ProjectScenarioName = scenario.Name;
+    }
+
+    //--------------------------------------------------------------------
+
+    [MaxLength(100)]
+    [DisplayName("Design")]
+    [Comment("Design name")]
+    public string? ProjectDesignName { get; set; }
+
+    public void SetProjectDesignFields(ProjectDesign design)
+    {
+        this.ProjectDesignId = design.Id;
+        this.ProjectDesignName = design.Name;
+    }
+
+    //--------------------------------------------------------------------
+
+    [MaxLength(100)]
+    [DisplayName("Component")]
+    [Comment("Component name")]
+    public string ProjectComponentName { get; set; } = string.Empty;
+
+    [MaxLength(50)]
+    [DisplayName("Location")]
+    [Comment("Component location")]
+    public string? Location { get; set; }
+
+    [MaxLength(100)]
+    [DisplayName("Subscription")]
+    [Comment("Component subscription")]
+    public string? Subscription { get; set; }
+
+    [MaxLength(100)]
+    [DisplayName("Resource Group")]
+    [Comment("Component resource group")]
+    public string? ResourceGroup { get; set; }
+
+    [MaxLength(100)]
+    [DisplayName("Owner")]
+    [Comment("Component owner")]
+    public string? ComponentOwner { get; set; }
+
+    public void SetProjectComponentFields(ProjectComponent component)
+    {
+        this.ProjectComponentId = component.Id;
+        this.ProjectComponentName = component.Name;
+        this.Location = component.Location;
+        this.Subscription = component.Subscription;
+        this.ResourceGroup = component.ResourceGroup;
+        this.ComponentOwner = component.Owner;
+    }
+
+    //--------------------------------------------------------------------
 
     [MaxLength(100)]
     [DisplayName("Resource")]
@@ -95,37 +163,76 @@ public class ProjectEstimate
     public string? ResourceName { get; set; }
 
     [MaxLength(100)]
-    [DisplayName("Resource Rate")]
-    [Comment("Resource rate name")]
-    public string? ResourceRateName { get; set; }
+    [DisplayName("Service")]
+    [Comment("Service name")]
+    public string? Service { get; set; }
 
-    [MaxLength(50)]
-    [DisplayName("Location")]
-    [Comment("Location name")]
-    public string? Location { get; set; }
+    [MaxLength(100)]
+    [DisplayName("Category")]
+    [Comment("Service category")]
+    public string? Category { get; set; }
 
-    [MaxLength(10)]
-    [DisplayName("Currency Code")]
-    [Comment("Currency code")]
-    public string? CurrencyCode { get; set; }
+    [MaxLength(100)]
+    [DisplayName("Product")]
+    [Comment("Product")]
+    public string? Product { get; set; }
+
+    [MaxLength(100)]
+    [DisplayName("Size")]
+    [Comment("Resource size")]
+    public string? Size { get; set; }
+
+    public void SetResourceFields(Resource resource)
+    {
+        this.ResourceId = resource.Id;
+        this.ResourceName = resource.Name;
+        this.Service = resource.Service;
+        this.Product = resource.Product;
+        this.Size = resource.Size;
+    }
 
     //--------------------------------------------------------------------
 
-    [DisplayName("Created On")]
-    [Comment("Estimate created on")]
-    public DateTime CreatedOn { get; set; }
-
-    [DisplayName("% Owned")]
-    [Comment("Component % owned")]
-    public int Owned { get; set; } = 0;
-
-    [Precision(12,4)]
-    [DisplayName("Estimated Cost")]
-    [Comment("Estimated cost")]
-    public decimal Cost { get; set; } = 0;
+    [MaxLength(100)]
+    [DisplayName("Rate")]
+    [Comment("Resource rate name")]
+    public string ResourceRateName { get; set; } = string.Empty;
 
     [Precision(12, 4)]
-    [DisplayName("Own Cost")]
-    [Comment("Own cost")]
-    public decimal OwnCost { get; set; } = 0;
+    [DisplayName("Miminum Units")]
+    [Comment("Tier miminum units")]
+    public decimal MiminumUnits { get; set; } = 0;
+
+    [MaxLength(30)]
+    [DisplayName("Unit of Measure")]
+    [Comment("Azure rate unit of measure")]
+    public string? UnitOfMeasure { get; set; }
+
+    [MaxLength(100)]
+    [DisplayName("Meter Name")]
+    [Comment("Meter name")]
+    public string? MeterName { get; set; }
+
+    [MaxLength(100)]
+    [DisplayName("Sku")]
+    [Comment("Sku name")]
+    public string? ProductSku { get; set; }
+
+    [MaxLength(100)]
+    [DisplayName("Rate Type")]
+    [Comment("Rate type")]
+    public string? RateType { get; set; }
+
+    public void SetResourceRateFields(ResourceRate rate)
+    {
+        this.ResourceRateId = rate.Id;
+        this.ResourceRateName = rate.Name;
+        this.RetailPrice = rate.RetailPrice;
+        this.UnitPrice = rate.UnitPrice;
+        this.MiminumUnits = rate.MiminumUnits;
+        this.UnitOfMeasure = rate.UnitOfMeasure;
+        this.MeterName = rate.MeterName;
+        this.ProductSku = rate.Sku;
+        this.RateType = rate.Type;
+    }
 }

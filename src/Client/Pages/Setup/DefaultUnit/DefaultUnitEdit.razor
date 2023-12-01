@@ -20,12 +20,12 @@
         <DataAnnotationsValidator />
         <ValidationSummary />
         <div class="mb-3">
-            <label for="AzureMeasure" class="form-label">Azure Unit of Measure</label>
-            <InputText @bind-Value="model.AzureMeasure" class="form-control" />
-            <ValidationMessage For="@(() => model.AzureMeasure)" />
+            <label for="UnitOfMeasure" class="form-label">Unit of Measure</label>
+            <InputText @bind-Value="model.UnitOfMeasure" class="form-control" />
+            <ValidationMessage For="@(() => model.UnitOfMeasure)" />
         </div>
         <div class="mb-3">
-            <label for="SetupMeasureUnitId" class="form-label">Measuring Unit</label>
+            <label for="SetupMeasureUnitId" class="form-label">System Unit</label>
             <InputSelect @bind-Value="model.SetupMeasureUnitId" class="form-control">
                 @foreach (var option in measures)
                 {
@@ -33,6 +33,21 @@
                 }
             </InputSelect>
             <ValidationMessage For="@(() => model.SetupMeasureUnitId)" />
+        </div>
+        <div class="mb-3">
+            <label for="UnitFactor" class="form-label">Unit Factor</label>
+            <InputNumber @bind-Value="model.UnitFactor" class="form-control" />
+            <ValidationMessage For="@(() => model.UnitFactor)" />
+        </div>
+        <div class="mb-3">
+            <label for="DefaultValue" class="form-label">Default Value</label>
+            <InputNumber @bind-Value="model.DefaultValue" class="form-control" />
+            <ValidationMessage For="@(() => model.DefaultValue)" />
+        </div>
+        <div class="mb-3">
+            <label for="Description" class="form-label">Description</label>
+            <InputText @bind-Value="model.Description" class="form-control" />
+            <ValidationMessage For="@(() => model.Description)" />
         </div>
         <div>
             <button type="submit" class="btn btn-primary">Save</button>
@@ -59,9 +74,25 @@
             model = new();
         }
         editContext = new(model);
+        editContext.OnValidationRequested += HandleValidationRequested;
         messageStore = new(editContext);
 
         measures = await Http.GetFromJsonAsync<SetupMeasureUnit[]>($"{nameof(SetupDefaultUnit)}/units") ?? Array.Empty<SetupMeasureUnit>();
+    }
+
+    private void HandleValidationRequested(object? sender, ValidationRequestedEventArgs args)
+    {
+        messageStore!.Clear();
+
+        model!.SetupMeasureUnit = measures.ToList().FirstOrDefault(q => q.Id == model.SetupMeasureUnitId)!;
+        if (model.SetupMeasureUnitId == 0 ||
+            model.SetupMeasureUnit is null ||
+            model.SetupMeasureUnit.Id == 0 ||
+            string.IsNullOrEmpty(model.SetupMeasureUnit.Name))
+        {
+            messageStore.Add(editContext!.Field(nameof(model.SetupMeasureUnitId)), "Required selection");
+            return;
+        }
     }
 
     private async Task HandleSubmit()
