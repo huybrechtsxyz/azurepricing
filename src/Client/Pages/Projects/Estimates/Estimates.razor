@@ -21,11 +21,13 @@ else
     <a href="/projectsimulation/@ProjectId" class="btn btn-secondary" role="button">
         <span class="oi oi-arrow-left" aria-hidden="true"></span> Return
     </a>
-    <button class="btn btn-secundary" @onclick="(() => Calculate(SimulationId))">Calculate</button>
+    <button class="btn btn-primary" @onclick="(() => Calculate(SimulationId))"> 
+        <span class="oi oi-calculator" aria-hidden="true"></span> Calculate
+    </button>
     @if (exportUri is not null)
     {
         <a id="export" href="@exportUri" class="btn btn-primary" role="button" target="=_top" download="estimates.xlsx">
-            <span class="oi oi-arrow-down" aria-hidden="true"></span>Export
+            <span class="oi oi-cloud-download" aria-hidden="true"></span> Export
         </a>
     }
 </p>

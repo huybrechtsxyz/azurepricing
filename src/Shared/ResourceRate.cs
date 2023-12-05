@@ -32,7 +32,7 @@ public class ResourceRate
     public ResourceRate(SearchRate searchRate)
     {
         this.ResourceId = searchRate.ResourceId; 
-        this.Name = searchRate.Product + " - " + searchRate.MeterName;
+        this.Name = searchRate.MeterName;
         if (this.Name.Length > 100)
             this.Name = this.Name[..100];
         this.ValidFrom = searchRate.ValidFrom;

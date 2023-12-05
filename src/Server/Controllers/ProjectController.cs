@@ -29,17 +29,19 @@ namespace AzureApp.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetAll()
         {
             if (_dbset is null)
                 return StatusCode(500);
 
-            var model = await _dbset.OrderBy(o => o.Name).ToListAsync();
+            var model = await _dbset
+                .OrderBy(o => o.Name)
+                .ToListAsync();
             return Ok(model);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> GetItem(int id)
         {
             if (_dbset is null)
                 return StatusCode(500);

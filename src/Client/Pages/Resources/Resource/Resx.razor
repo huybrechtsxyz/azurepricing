@@ -38,15 +38,29 @@
                     <td>@item.Name</td>
                     <td>@item.Description</td>
                     <td>@item.CostDriver</td>
-                    <td>@item.CostBasedOn</td>
-                    <td>@item.Limitations</td>
+                    <td>
+                        @item.CostBasedOn
+                        @if(!string.IsNullOrEmpty(item.PricingURL))
+                        {
+                            <br/><a href="@item.PricingURL">Pricing</a>
+                        }
+                    </td>
+                    <td>
+                        @item.Limitations
+                        @if(!string.IsNullOrEmpty(item.AboutURL))
+                        {
+                            <br/><a href="@item.AboutURL">Documentation</a>
+                        }
+                    </td>
                     <td>@item.Service</td>
                     <td>@item.Category</td>
                     <td>@item.Product</td>
                     <td>@item.Size</td>
                     <td>@item.Remarks</td>
                     <td>
-                        <a href="/resourcerate/@item.Id" class="btn btn-outline-primary" role="button">Rates</a>
+                        <a href="/resourcerate/@item.Id" class="btn btn-outline-primary" role="button">
+                            <span class="oi oi-spreadsheet" aria-hidden="true"></span> Rates
+                        </a>
                         <a href="/resource/edit/@item.Id" class="btn btn-outline-dark" role="button">Edit</a>
                         <a href="/resource/delete/@item.Id" class="btn btn-outline-dark" role="button">Delete</a>
                     </td>

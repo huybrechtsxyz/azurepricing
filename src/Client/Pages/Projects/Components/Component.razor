@@ -57,7 +57,9 @@ else
                     <td>@item.Description</td>
                     <td>@item.Remark</td>
                     <td>
-                        <a href="/projectmeasure/@ProjectId/@DesignId/@item.Id" class="btn btn-outline-primary" role="button">Measures</a>
+                        <a href="/projectmeasure/@ProjectId/@DesignId/@item.Id" class="btn btn-outline-primary" role="button">
+                            <span class="oi oi-timer" aria-hidden="true"></span> Measures
+                        </a>
                         <a href="/projectcomponent/@ProjectId/@DesignId/edit/@item.Id" class="btn btn-outline-dark" role="button">Edit</a>
                         <a href="/projectcomponent/@ProjectId/@DesignId/delete/@item.Id" class="btn btn-outline-dark" role="button">Delete</a>
                     </td>

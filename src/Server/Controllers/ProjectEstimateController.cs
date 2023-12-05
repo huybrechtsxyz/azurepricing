@@ -1,5 +1,9 @@
-﻿using AzureApp.Server.Data;
+﻿using AzureApp.Client.Pages.Projects.Designs;
+using AzureApp.Client.Pages.Projects.Estimates;
+using AzureApp.Client.Pages.Projects.Simulations;
+using AzureApp.Server.Data;
 using AzureApp.Shared;
+using Jace;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
@@ -34,7 +38,8 @@ namespace AzureApp.Server.Controllers
                 return StatusCode(500);
 
             var model = await _dbset
-                .Where(q => q.ProjectSimulationId == id).ToListAsync();
+                .Where(q => q.ProjectSimulationId == id)
+                .ToListAsync();
 
             return Ok(model);
         }
@@ -159,14 +164,16 @@ namespace AzureApp.Server.Controllers
                 _context.Resources is null)
                 return StatusCode(500);
 
-            var simulation = await _context.ProjectSimulations.Include(i => i.Estimates).SingleAsync(q => q.Id == id);
+            var simulation = await _context.ProjectSimulations
+                .Include(i => i.Estimates)
+                .SingleAsync(q => q.Id == id);
             if (simulation.Estimates is not null)
                 _dbset.RemoveRange(simulation.Estimates);
             simulation.Estimates ??= new List<ProjectEstimate>();
 
             var design = await _context.ProjectDesigns!
-                .Include(i => i.ProjectComponents!)
-                .ThenInclude(i => i.ProjectMeasures!)
+                .Include(i => i.ProjectComponents!.OrderBy(io => io.Name))
+                .ThenInclude(i => i.ProjectMeasures!.OrderBy(io => io.Variable).ThenBy(io => io.SetupMeasureUnit.Name))
                 .ThenInclude(i => i.SetupMeasureUnit)
                 .SingleAsync(q => q.Id == simulation.ProjectDesignId);
 
@@ -174,8 +181,9 @@ namespace AzureApp.Server.Controllers
                 return Ok();
 
             var project = await _context.Projects
-                .Include(i => i.ProjectScenarios)
-                .Where(q => q.Id == design.ProjectId).SingleAsync();
+                .Include(i => i.ProjectScenarios.OrderBy(io => io.Name))
+                .Where(q => q.Id == design.ProjectId)
+                .SingleAsync();
 
             if (project.ProjectScenarios is null || !project.ProjectScenarios.Any())
                 return Ok();
@@ -190,46 +198,55 @@ namespace AzureApp.Server.Controllers
             calculationEngine.AddFunction("roundup", ( (Func<double, double>)( (a) => (double)decimal.Ceiling((decimal)a) ) ) );
             calculationEngine.AddFunction("rounddown", ((Func<double, double>)((a) => (double)decimal.Floor((decimal)a))));
 
-            foreach (var scenario in project.ProjectScenarios)
+            List<ProjectEstimate> newEstimates = new();
+
+            foreach (var scenario in project.ProjectScenarios) //project.ProjectScenarios)
             {
                 foreach (var component in design.ProjectComponents)
                 {
-                    if (!string.IsNullOrEmpty(simulation.Proposal))
-                        if (simulation.Proposal != component.Proposal)
-                            continue;
+                    if (!DoCalculateProposal(simulation, component))
+                        continue;
 
-                    Dictionary<string, double> variables = scenario.GetAsVariables();
-
-                    if (component.ProjectMeasures is not null)
-                    {
-                        foreach (var measure in component.ProjectMeasures.OrderBy(o => o.Variable).ThenBy(o => o.SetupMeasureUnit.Name))
-                        {
-                            if (string.IsNullOrEmpty(measure.Variable))
-                                measure.Variable = measure.SetupMeasureUnit.Name;
-                            measure.CalcQuantity = calculationEngine.Calculate((measure.Expression??string.Empty).ToLower(), variables);
-                            if (!variables.ContainsKey(measure.Variable.ToLower()))
-                                variables.Add(measure.Variable.ToLower(), measure.CalcQuantity);
-                        }
-                    }
-
+                    Dictionary<string, double> variables = CalculateVariables(scenario, component, calculationEngine);
+                    
                     var resource = await _context.Resources
-                        .Include(i => i.ResourceRates!)
-                        .ThenInclude(i => i.ResourceUnits!)
+                        .Include(i => i.ResourceRates!
+                            .Where(iq => iq.Location == component.Location && iq.CurrencyCode == project.CurrencyCode)
+                            //.OrderBy(io => io.ValidFrom)
+                            .OrderBy(io => io.Name)
+                            .ThenBy(io => io.MiminumUnits))
+                        .ThenInclude(i => i.ResourceUnits!
+                            .OrderBy(io => io.UnitOfMeasure)
+                            .ThenBy(io => io.SetupMeasureUnit.Name))
                         .ThenInclude(i => i.SetupMeasureUnit)
                         .Where(q => q.Id == component.ResourceId)
                         .SingleAsync();
+
                     if (resource is null || resource.ResourceRates is null)
                         break;
 
-                    for(int idex = 0; idex < resource.ResourceRates.Count; ++idex)
+                    //No all rates have the same date. Skip for now.
+                    //List<ResourceRate> selectedRates = resource.ResourceRates.ToList();
+                    //DateTime? validDate = resource.ResourceRates
+                    //    .Select(s => s.ValidFrom).Distinct()
+                    //    .Where(q => q <= simulation.CreatedOn)
+                    //    .OrderBy(o => o)
+                    //    .LastOrDefault();
+                    //if (validDate is not null)
+                    //    selectedRates = resource.ResourceRates.Where(q => q.ValidFrom == validDate).ToList();
+                    //else
+                    //    selectedRates = new();
+
+                    List<ResourceRate> selectedRates = resource.ResourceRates.ToList();
+                    for (int idex = 0; idex < selectedRates.Count; ++idex)
                     {
-                        ResourceRate rate = resource.ResourceRates.ElementAt(idex);
+                        ResourceRate rate = selectedRates.ElementAt(idex);
                         if (rate.Location != component.Location || rate.CurrencyCode != project.CurrencyCode)
                             continue;
 
                         ResourceRate? peek = null;
-                        if (idex + 1 < resource.ResourceRates.Count)
-                            peek = resource.ResourceRates.ElementAt(idex + 1);
+                        if (idex + 1 < selectedRates.Count)
+                            peek = selectedRates.ElementAt(idex + 1);
 
                         ProjectEstimate estimate = new ProjectEstimate(simulation);
                         estimate.SetProjectFields(project);
@@ -238,45 +255,100 @@ namespace AzureApp.Server.Controllers
                         estimate.SetProjectComponentFields(component);
                         estimate.SetResourceFields(resource);
                         estimate.SetResourceRateFields(rate);
-                        estimate.Quantity = 1;
 
-                        if (rate.ResourceUnits is not null) { 
-                            foreach(var unit in rate.ResourceUnits)
-                            {
-                                if (unit.UnitFactor != 0)
-                                    estimate.Quantity *= unit.UnitFactor;
-
-                                var applied = component.ProjectMeasures!.Where(q => q.SetupMeasureUnitId == unit.SetupMeasureUnitId).ToList();
-                                if (applied is not null && applied.Count > 0)
-                                {
-                                    foreach(var measureunit in applied)
-                                    {
-                                        estimate.Quantity *= (decimal)measureunit.CalcQuantity;
-                                    }
-                                }
-                                else
-                                    estimate.Quantity *= unit.DefaultValue;
-                            }
-                        }
-
-                        if (rate.MiminumUnits > 0)
-                            estimate.Quantity -= rate.MiminumUnits;
-
-                        if (estimate.Quantity < 0)
-                            estimate.Quantity = 0;
-
-                        if (peek is not null)
-                            if (peek.MiminumUnits != 0 && estimate.Quantity > peek.MiminumUnits)
-                                estimate.Quantity = peek.MiminumUnits;
-
-                        estimate.CalculateCost();
+                        estimate = CalcCostEstimate(component, estimate, rate, peek);
+                        
                         _dbset.Add(estimate);
+                        newEstimates.Add(estimate);
                     }
                 }
             }
 
             await _context.SaveChangesAsync();
             return Ok();
+        }
+
+        private bool DoCalculateProposal(ProjectSimulation simulation, ProjectComponent component)
+        {
+            if (string.IsNullOrEmpty(simulation.Proposal))
+                return true;
+            if (string.IsNullOrEmpty(component.Proposal))
+                return true;
+
+            List<string> simProposals = simulation.Proposal.ToLower().Split(";").ToList();
+            List<string> comProposals = component.Proposal.ToLower().Split(";").ToList();
+
+            foreach (var check in simProposals)
+            {
+                if (comProposals.Contains(check))
+                    return true;
+            }
+            return false;
+        }
+
+        private Dictionary<string, double> CalculateVariables(
+            ProjectScenario scenario,
+            ProjectComponent component,
+            Jace.CalculationEngine calculationEngine)
+        {
+            Dictionary<string, double> variables = scenario.GetAsVariables();
+
+            if (component.ProjectMeasures is not null)
+            {
+                foreach (var measure in component.ProjectMeasures.OrderBy(o => o.Variable).ThenBy(o => o.SetupMeasureUnit.Name))
+                {
+                    if (string.IsNullOrEmpty(measure.Variable))
+                        measure.Variable = measure.SetupMeasureUnit.Name;
+                    measure.CalcQuantity = calculationEngine.Calculate((measure.Expression ?? string.Empty).ToLower(), variables);
+                    if (!variables.ContainsKey(measure.Variable.ToLower()))
+                        variables.Add(measure.Variable.ToLower(), measure.CalcQuantity);
+                }
+            }
+
+            return variables;
+        }
+
+        private ProjectEstimate CalcCostEstimate(
+            ProjectComponent component,
+            ProjectEstimate estimate,
+            ResourceRate rate,
+            ResourceRate? peek)
+        {
+            estimate.Quantity = 1;
+
+            if (rate.ResourceUnits is not null)
+            {
+                foreach (var unit in rate.ResourceUnits)
+                {
+                    if (unit.UnitFactor != 0)
+                        estimate.Quantity *= unit.UnitFactor;
+
+                    var applied = component.ProjectMeasures!.Where(q => q.SetupMeasureUnitId == unit.SetupMeasureUnitId).ToList();
+                    if (applied is not null && applied.Count > 0)
+                    {
+                        foreach (var measureunit in applied)
+                        {
+                            estimate.Quantity *= (decimal)measureunit.CalcQuantity;
+                        }
+                    }
+                    else
+                        estimate.Quantity *= unit.DefaultValue;
+                }
+            }
+
+            if (rate.MiminumUnits > 0)
+                estimate.Quantity -= rate.MiminumUnits;
+
+            if (estimate.Quantity < 0)
+                estimate.Quantity = 0;
+
+            if (peek is not null)
+                if (peek.MiminumUnits != 0 && estimate.Quantity > peek.MiminumUnits)
+                    estimate.Quantity = peek.MiminumUnits;
+
+            estimate.CalculateCost();
+            estimate.RoundNumbers();
+            return estimate;
         }
     }
 }

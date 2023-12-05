@@ -15,6 +15,7 @@ else
     <h1>Resources > Rates</h1>
     <p>The list of available resource rates</p>
 }
+<p>All rates are taken into account! Application does not filter based on date or other property!</p>
 <p>
     <a href="/resource" class="btn btn-secondary" role="button">
         <span class="oi oi-arrow-left" aria-hidden="true"></span> Return
@@ -36,11 +37,13 @@ else
                 <th>Retail Price</th>
                 <th>Minimum Units</th>
                 <th>Unit Of Measure</th>
+                <th>Current Units</th>
                 <th>Type</th>
                 <th>Service</th>
                 <th>Category</th>
                 <th>Location</th>
                 <th>Currency</th>
+                <th>Valid From</th>
                 <th>Primary?</th>
                 <th></th>
             </tr>
@@ -56,14 +59,18 @@ else
                     <td>@item.RetailPrice</td>
                     <td>@item.MiminumUnits</td>
                     <td>@item.UnitOfMeasure</td>
+                    <td>@string.Join(", ", @item.ResourceUnits!.Select(s => s.SetupMeasureUnit.Name))</td>
                     <td>@item.Type</td>
                     <td>@item.Service</td>
                     <td>@item.Category</td>
                     <td>@item.Location</td>
                     <td>@item.CurrencyCode</td>
+                    <td>@item.ValidFrom.ToString("yyyy-MM-dd")</td>
                     <td>@item.IsPrimaryRegion</td>
                     <td>
-                        <a href="/resourceunit/@ResxId/@item.Id" class="btn btn-outline-primary" role="button">Units</a>
+                        <a href="/resourceunit/@ResxId/@item.Id" class="btn btn-outline-primary" role="button">
+                            <span class="oi oi-list" aria-hidden="true"></span> Units
+                        </a>
                         <a href="/resourcerate/@ResxId/edit/@item.Id" class="btn btn-outline-dark" role="button">Edit</a>
                         <a href="/resourcerate/@ResxId/delete/@item.Id" class="btn btn-outline-dark" role="button">Delete</a>
                     </td>

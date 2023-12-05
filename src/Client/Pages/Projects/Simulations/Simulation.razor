@@ -54,7 +54,9 @@ else
                     <td>@item.Environment</td>
                     <td>
                         
-                        <a href="/projectestimate/@ProjectId/@item.Id" class="btn btn-outline-primary" role="button">Estimates</a>
+                        <a href="/projectestimate/@ProjectId/@item.Id" class="btn btn-outline-primary" role="button">
+                            <span class="oi oi-dashboard" aria-hidden="true"></span> Estimates
+                        </a>
                         <a href="/projectsimulation/@ProjectId/edit/@item.Id" class="btn btn-outline-dark" role="button">Edit</a>
                         <a href="/projectsimulation/@ProjectId/delete/@item.Id" class="btn btn-outline-dark" role="button">Delete</a>
                     </td>

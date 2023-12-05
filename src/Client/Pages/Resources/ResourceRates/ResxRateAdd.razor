@@ -111,6 +111,11 @@
             <ValidationMessage For="@(() => model.Type)" />
         </div>
         <div class="mb-3">
+            <label for="ValidFrom" class="form-label">Valid From</label>
+            <InputDate @bind-Value="model.ValidFrom" class="form-control" />
+            <ValidationMessage For="@(() => model.ValidFrom)" />
+        </div>
+        <div class="mb-3">
             <label for="IsPrimaryRegion" class="form-label">Is Primary Region?</label>
             <InputCheckbox @bind-Value="model.IsPrimaryRegionNN" class="form-check" disabled="true" />
             <ValidationMessage For="@(() => model.IsPrimaryRegion)" />

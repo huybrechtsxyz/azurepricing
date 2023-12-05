@@ -34,7 +34,10 @@ namespace AzureApp.Server.Controllers
             if (_dbset is null)
                 return StatusCode(500);
 
-            var model = await _dbset.Where(q => q.ProjectId == id).OrderBy(o => o.Name).ToListAsync();
+            var model = await _dbset
+                .Where(q => q.ProjectId == id)
+                .OrderBy(o => o.Name)
+                .ToListAsync();
             return Ok(model);
         }
 

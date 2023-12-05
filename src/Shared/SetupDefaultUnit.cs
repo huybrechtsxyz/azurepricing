@@ -37,8 +37,8 @@ public class SetupDefaultUnit
     public string UnitOfMeasure { get; set; } = String.Empty;
 
     [Required]
-    [Precision(12, 4)]
-    [DisplayName("Conversion Factor")]
+    [Precision(12, 6)]
+    [DisplayName("Unit Factor")]
     [Comment("Rate conversion factor")]
     public decimal UnitFactor { get; set; } = 0;
 

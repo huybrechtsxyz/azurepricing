@@ -1,0 +1,172 @@
+﻿@page "/projectcomponent/{projectid:int}/{designid:int}/edit/{id:int}"
+@using AzureApp.Shared
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+
+<PageTitle>Project Design Component</PageTitle>
+
+<h1>Edit Component</h1>
+
+<p>Edit the component.</p>
+<p>
+    <a href="/projectcomponent/@ProjectId/@DesignId" class="btn btn-light" role="button">
+        <span class="oi oi-arrow-left" aria-hidden="true"></span> Cancel
+    </a>
+</p>
+
+@if (@model is not null)
+{
+    <EditForm EditContext="@editContext" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="mb-3">
+            <label for="Name" class="form-label">Name</label>
+            <InputText @bind-Value="model.Name" class="form-control" />
+            <ValidationMessage For="@(() => model.Name)" />
+        </div>
+        <div class="mb-3">
+            <label for="Proposal" class="form-label">Proposal</label>
+            <InputText @bind-Value="model.Proposal" class="form-control" />
+            <ValidationMessage For="@(() => model.Proposal)" />
+        </div>
+        <div class="mb-3">
+            <label for="ResourceId" class="form-label">Resource</label>
+            <InputSelect @bind-Value="model.ResourceId" class="form-control">
+                @if (resources is not null)
+                {
+                    @foreach (var option in resources)
+                    {
+                        <option value="@option.Id">@option.Name</option>
+                    }
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => model.ResourceId)" />
+        </div>
+        <div class="mb-3">
+            <label for="Owned" class="form-label">% Owned</label>
+            <InputNumber @bind-Value="model.Owned" class="form-control" />
+            <ValidationMessage For="@(() => model.Owned)" />
+        </div>
+        <div class="mb-3">
+            <label for="Owner" class="form-label">Owner</label>
+            <InputText @bind-Value="model.Owner" class="form-control" />
+            <ValidationMessage For="@(() => model.Owner)" />
+        </div>
+        <div class="mb-3">
+            <label for="Subscription" class="form-label">Subscription</label>
+            <InputText @bind-Value="model.Subscription" class="form-control" />
+            <ValidationMessage For="@(() => model.Subscription)" />
+        </div>
+        <div class="mb-3">
+            <label for="ResourceGroup" class="form-label">Resource Group</label>
+            <InputText @bind-Value="model.ResourceGroup" class="form-control" />
+            <ValidationMessage For="@(() => model.ResourceGroup)" />
+        </div>
+        <div class="mb-3">
+            <label for="Location" class="form-label">Location</label>
+            <InputSelect @bind-Value="model.Location" class="form-control">
+                @if (locations is not null && locations.Length > 0)
+                {
+                    foreach (var option in locations)
+                    {
+                        <option value="@option.Name">@option.Name</option>
+                    }
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => model.Location)" />
+        </div>
+        <div class="mb-3">
+            <label for="Description" class="form-label">Description</label>
+            <InputText @bind-Value="model.Description" class="form-control" />
+            <ValidationMessage For="@(() => model.Description)" />
+        </div>
+        <div class="mb-3">
+            <label for="Remark" class="form-label">Remark</label>
+            <InputText @bind-Value="model.Remark" class="form-control" />
+            <ValidationMessage For="@(() => model.Remark)" />
+        </div>
+        <div>
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button class="btn btn-light" @onclick="CancelItem">Cancel</button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    private EditContext? editContext { get; set; }
+    private ValidationMessageStore? messageStore { get; set; }
+    private AzureApp.Shared.ProjectDesign? parent { get; set; }
+    private AzureApp.Shared.ProjectComponent? model { get; set; }
+    private AzureApp.Shared.Resource[]? resources = null!;
+    private AzureApp.Shared.SetupLocation[]? locations = null!;
+    private string navigateBack = string.Empty;
+
+    [Parameter]
+    public int ProjectId { get; set; }
+
+    [Parameter]
+    public int DesignId { get; set; }
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        resources = await Http.GetFromJsonAsync<AzureApp.Shared.Resource[]>($"{nameof(AzureApp.Shared.Resource)}") ?? Array.Empty<AzureApp.Shared.Resource>();
+        locations = await Http.GetFromJsonAsync<SetupLocation[]>($"{nameof(SetupLocation)}") ?? Array.Empty<SetupLocation>();
+        parent = await Http.GetFromJsonAsync<AzureApp.Shared.ProjectDesign>($"{nameof(AzureApp.Shared.ProjectDesign)}/item/{DesignId}");
+        model = await Http.GetFromJsonAsync<AzureApp.Shared.ProjectComponent>($"{nameof(AzureApp.Shared.ProjectComponent)}/item/{Id}");
+        editContext = new(model!);
+        editContext.OnValidationRequested += HandleValidationRequested;
+        messageStore = new(editContext);
+        navigateBack = $"/projectcomponent/{ProjectId}/{DesignId}";
+    }
+
+    private void HandleValidationRequested(object? sender, ValidationRequestedEventArgs args)
+    {
+        messageStore!.Clear();
+
+        model!.Resource = resources!.ToList().FirstOrDefault(q => q.Id == model.ResourceId)!;
+        if (model.ResourceId == 0 ||
+            model.Resource is null ||
+            model.Resource.Id == 0 ||
+            string.IsNullOrEmpty(model.Resource.Name))
+        {
+            messageStore.Add(editContext!.Field(nameof(model.ResourceId)), "Required selection");
+            return;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (model is null || editContext is null || messageStore is null)
+            return;
+
+        var response = await Http.PutAsJsonAsync<AzureApp.Shared.ProjectComponent>(nameof(AzureApp.Shared.ProjectComponent), model);
+        if (response.IsSuccessStatusCode)
+        { 
+            NavigationManager.NavigateTo(navigateBack);
+            return;
+        }
+
+        var errors = await response.Content.ReadFromJsonAsync<Dictionary<string, List<string>>>() ?? new();
+        if (errors.Any())
+        {
+            foreach (var keyValuePair in errors)
+            {
+                foreach (var msg in keyValuePair.Value)
+                {
+                    messageStore.Add(editContext.Field(keyValuePair.Key), msg);
+                }
+            }
+        }
+        
+        editContext.Validate();
+        StateHasChanged();
+    }
+
+    private void CancelItem()
+    {
+        NavigationManager.NavigateTo(navigateBack);
+    }
+}

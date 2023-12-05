@@ -56,7 +56,7 @@
                 <ValidationMessage For="@(() => parameters.CurrencyCode)" />
             </div>
             <div>
-                <button type="submit" class="btn btn-primary">Select</button>
+                <button type="submit" class="btn btn-primary"><span class="oi oi-magnifying-glass" aria-hidden="true"></span> Search</button>
                 <button class="btn btn-light" @onclick="ClearSearch">Clear</button>
             </div>
         </EditForm>
@@ -73,7 +73,7 @@
     {
         <EditForm EditContext="@editContext" OnValidSubmit="SelectRates">
             <div>
-                <button type="submit" class="btn btn-primary">Import</button>
+                <button type="submit" class="btn btn-primary"><span class="oi oi-chevron-right" aria-hidden="true"></span> Import</button>
                 <button class="btn btn-light" @onclick="ClearSearch">Reset</button>
             </div>
             <table class="table">
@@ -91,6 +91,7 @@
                         <th>Category</th>
                         <th>Location</th>
                         <th>Currency</th>
+                        <th>Valid From </th>
                         <th>Primary?</th>
                     </tr>
                 </thead>
@@ -110,6 +111,7 @@
                             <td>@item.Category</td>
                             <td>@item.Location</td>
                             <td>@item.CurrencyCode</td>
+                            <td>@item.ValidFrom.ToString("yyyy-MM-dd")</td>
                             <td>@item.IsPrimaryRegion</td>
                         </tr>
                     }
@@ -129,7 +131,7 @@
     {
         <EditForm EditContext="@resxContext" OnValidSubmit="ImportRates">
             <div>
-                <button type="submit" class="btn btn-primary">Import</button>
+                <button type="submit" class="btn btn-primary"><span class="oi oi-check" aria-hidden="true"></span> Import</button>
                 <button class="btn btn-light" @onclick="ClearSearch">Reset</button>
             </div>
             <table class="table">

@@ -177,8 +177,8 @@ namespace AzureApp.Server.Migrations
                         .HasComment("Component owner");
 
                     b.Property<decimal>("Cost")
-                        .HasPrecision(12, 4)
-                        .HasColumnType("decimal(12,4)")
+                        .HasPrecision(22, 2)
+                        .HasColumnType("decimal(22,2)")
                         .HasComment("Estimated cost");
 
                     b.Property<string>("Location")
@@ -197,8 +197,8 @@ namespace AzureApp.Server.Migrations
                         .HasComment("Tier miminum units");
 
                     b.Property<decimal>("OwnCost")
-                        .HasPrecision(12, 4)
-                        .HasColumnType("decimal(12,4)")
+                        .HasPrecision(22, 2)
+                        .HasColumnType("decimal(22,2)")
                         .HasComment("Own cost");
 
                     b.Property<int>("Owned")
@@ -255,8 +255,8 @@ namespace AzureApp.Server.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("Quantity")
-                        .HasPrecision(12, 4)
-                        .HasColumnType("decimal(12,4)")
+                        .HasPrecision(20, 4)
+                        .HasColumnType("decimal(20,4)")
                         .HasComment("Estimate Quantity");
 
                     b.Property<string>("RateType")
@@ -713,8 +713,8 @@ namespace AzureApp.Server.Migrations
                         .HasComment("System Unit");
 
                     b.Property<decimal>("UnitFactor")
-                        .HasPrecision(12, 4)
-                        .HasColumnType("decimal(12,4)")
+                        .HasPrecision(12, 6)
+                        .HasColumnType("decimal(12,6)")
                         .HasComment("Rate conversion factor");
 
                     b.Property<string>("UnitOfMeasure")
@@ -876,8 +876,8 @@ namespace AzureApp.Server.Migrations
                         .HasComment("System Unit");
 
                     b.Property<decimal>("UnitFactor")
-                        .HasPrecision(12, 4)
-                        .HasColumnType("decimal(12,4)")
+                        .HasPrecision(12, 6)
+                        .HasColumnType("decimal(12,6)")
                         .HasComment("Rate conversion factor");
 
                     b.Property<string>("UnitOfMeasure")

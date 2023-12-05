@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace AzureApp.Shared;
 
 [Table("SetupCurrency")]
+[DisplayName("Currency")]
 public class SetupCurrency
 {
     public SetupCurrency()
@@ -16,7 +17,7 @@ public class SetupCurrency
     [Key]
     [Required]
     [MaxLength(10)]
-    [DisplayName("Currency Code")]
+    [DisplayName("Currency")]
     [Comment("Primary Key")]
     public string Code { get; set; } = string.Empty;
 }

@@ -44,7 +44,7 @@ public class ProjectEstimate
 
     //--------------------------------------------------------------------
 
-    [Precision(12, 4)]
+    [Precision(20, 4)]
     [DisplayName("Quantity")]
     [Comment("Estimate Quantity")]
     public decimal Quantity { get; set; }
@@ -59,7 +59,7 @@ public class ProjectEstimate
     [Comment("Unit price")]
     public decimal UnitPrice { get; set; }
 
-    [Precision(12, 4)]
+    [Precision(22, 2)]
     [DisplayName("Estimated Cost")]
     [Comment("Estimated cost")]
     public decimal Cost { get; set; } = 0;
@@ -68,7 +68,7 @@ public class ProjectEstimate
     [Comment("Component % owned")]
     public int Owned { get; set; } = 0;
 
-    [Precision(12, 4)]
+    [Precision(22, 2)]
     [DisplayName("Own Cost")]
     [Comment("Own cost")]
     public decimal OwnCost { get; set; } = 0;
@@ -77,6 +77,15 @@ public class ProjectEstimate
     {
         this.Cost = decimal.Round(Quantity * RetailPrice, 2);
         this.OwnCost = decimal.Round(Cost * (Owned / 100), 2);
+    }
+
+    public void RoundNumbers()
+    {
+        this.Quantity = decimal.Round(this.Quantity, 4);
+        this.RetailPrice = decimal.Round(this.RetailPrice, 4);
+        this.UnitPrice = decimal.Round(this.UnitPrice, 4);
+        this.Cost = decimal.Round(this.Cost, 2);
+        this.OwnCost = decimal.Round(this.OwnCost, 2);
     }
 
     //--------------------------------------------------------------------

@@ -60,8 +60,8 @@ public class ResourceUnit
     public string UnitOfMeasure { get; set; } = String.Empty;
 
     [Required]
-    [Precision(12, 4)]
-    [DisplayName("Conversion Factor")]
+    [Precision(12, 6)]
+    [DisplayName("Unit Factor")]
     [Comment("Rate conversion factor")]
     public decimal UnitFactor { get; set; } = 0;
 
@@ -76,10 +76,13 @@ public class ResourceUnit
     [Comment("Measuring unit description")]
     public string Description { get; set; } = string.Empty;
 
-    public void UpdateFields(ResourceUnit resourceUnit)
+    public void UpdateFields(ResourceUnit resourceUnit, bool includeKeys = true)
     {
-        this.ResourceId = resourceUnit.ResourceId;
-        this.ResourceRateId = resourceUnit.ResourceRateId;
+        if (includeKeys)
+        { 
+            this.ResourceId = resourceUnit.ResourceId;
+            this.ResourceRateId = resourceUnit.ResourceRateId;
+        }
         this.SetupMeasureUnitId = resourceUnit.SetupMeasureUnitId;
         this.UnitOfMeasure = resourceUnit.UnitOfMeasure;
         this.UnitFactor = resourceUnit.UnitFactor;

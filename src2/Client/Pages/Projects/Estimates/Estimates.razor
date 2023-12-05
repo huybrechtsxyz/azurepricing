@@ -1,0 +1,126 @@
+﻿@page "/projectestimate/{projectid:int}/{simulationid:int}"
+@using AzureApp.Shared
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject IJSRuntime js
+
+<PageTitle>Project Estimates</PageTitle>
+
+@if (parent is not null)
+{
+    <h1>@parent.Name > Estimates</h1>
+    <p>The list of project estimates</p>
+}
+else
+{
+    <h1>Estimates</h1>
+    <p>The list of project estimates</p>
+}
+
+<p>
+    <a href="/projectsimulation/@ProjectId" class="btn btn-secondary" role="button">
+        <span class="oi oi-arrow-left" aria-hidden="true"></span> Return
+    </a>
+    <button class="btn btn-secundary" @onclick="(() => Calculate(SimulationId))">Calculate</button>
+    @if (exportUri is not null)
+    {
+        <a id="export" href="@exportUri" class="btn btn-primary" role="button" target="=_top" download="estimates.xlsx">
+            <span class="oi oi-arrow-down" aria-hidden="true"></span>Export
+        </a>
+    }
+</p>
+
+@if (model is not null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Project</th>
+                <th>Design</th>
+                <th>Component</th>
+                <th>Scenario</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Cost</th>
+                <th>Owned</th>
+                <th>OwnCost</th>
+                <th>Subscription</th>
+                <th>Resource Group</th>
+                <th>Location</th>
+                <th>Service</th>
+                <th>Resource</th>
+                <th>Product</th>
+                <th>Sku</th>
+                <th>Size</th>
+                <th>Miminum Units</th>
+                <th>Unit Of Measure</th>
+                <th>Owner</th>
+                <th>Rate</th>
+                <th>Meter</th>
+                <th>Type</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in model)
+            {
+                <tr>
+                    <td>@item.ProjectName</td>
+                    <td>@item.ProjectDesignName</td>
+                    <td>@item.ProjectComponentName</td>
+                    <td>@item.ProjectScenarioName</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.RetailPrice</td>
+                    <td>@item.Cost</td>
+                    <td>@item.Owned</td>
+                    <td>@item.OwnCost</td>
+                    <td>@item.Subscription</td>
+                    <td>@item.ResourceGroup</td>
+                    <td>@item.Location</td>
+                    <td>@item.Service</td>
+                    <td>@item.ResourceName</td>
+                    <td>@item.Product</td>
+                    <td>@item.ProductSku</td>
+                    <td>@item.Size</td>
+                    <td>@item.MiminumUnits</td>
+                    <td>@item.UnitOfMeasure</td>
+                    <td>@item.ComponentOwner</td>
+                    <td>@item.ResourceRateName</td>
+                    <td>@item.MeterName</td>
+                    <td>@item.RateType</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p><em>Loading...</em></p>
+}
+
+@code {
+    private AzureApp.Shared.Project? project;
+    private AzureApp.Shared.ProjectSimulation? parent;
+    private AzureApp.Shared.ProjectEstimate[]? model;
+    private string? exportUri = null;
+
+    [Parameter]
+    public int ProjectId { get; set; }
+
+    [Parameter]
+    public int SimulationId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        project = await Http.GetFromJsonAsync<AzureApp.Shared.Project>($"{nameof(AzureApp.Shared.Project)}/{ProjectId}");
+        parent = await Http.GetFromJsonAsync<AzureApp.Shared.ProjectSimulation>($"{nameof(AzureApp.Shared.ProjectSimulation)}/item/{SimulationId}");
+        model = await Http.GetFromJsonAsync<AzureApp.Shared.ProjectEstimate[]>($"{nameof(AzureApp.Shared.ProjectEstimate)}/all/{SimulationId}");
+
+        exportUri = $"/projectestimate/export/{SimulationId}";
+    }
+
+    private async Task Calculate(int id)
+    {
+        await Http.GetAsync($"{nameof(AzureApp.Shared.ProjectEstimate)}/calculate/{id}");
+        NavigationManager.NavigateTo(NavigationManager.Uri, true);
+    }
+}

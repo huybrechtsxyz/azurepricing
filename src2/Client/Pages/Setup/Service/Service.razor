@@ -1,0 +1,62 @@
+﻿@page "/service"
+@using AzureApp.Shared
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+
+<PageTitle>Services</PageTitle>
+
+<h1>Services</h1>
+
+<p>The list of available azure services</p>
+<p>
+    <button class="btn btn-primary" role="button" @onclick="RefreshList">
+        <span class="oi oi-plus" aria-hidden="true"></span> Refresh
+    </button>
+</p>
+
+@if (Model is not null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Enabled?</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.Category</td>
+                    <td>@item.Enabled</td>
+                    <td>
+                        <a href="/service/edit/@item.ServiceId" class="btn btn-outline-dark" role="button">Edit</a>
+                        <a href="/service/delete/@item.ServiceId" class="btn btn-outline-dark" role="button">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p><em>Loading...</em></p>
+}
+
+@code {
+    public SetupService[]? Model;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model = await Http.GetFromJsonAsync<SetupService[]>(nameof(SetupService));
+    }
+
+    private async Task RefreshList()
+    {
+        await Http.GetAsync($"{nameof(SetupService)}/refresh");
+        NavigationManager.NavigateTo("/service");
+    }
+}

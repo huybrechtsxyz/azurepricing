@@ -64,7 +64,14 @@ namespace AzureApp.Server.Controllers
             if (_dbset is null)
                 return StatusCode(500, Array.Empty<ResourceRate>());
 
-            var model = await _dbset.Where(q => q.ResourceId == id).ToListAsync();
+            var model = await _dbset
+                .Include(i => i.ResourceUnits)
+                .ThenInclude(i => i.SetupMeasureUnit)
+                .Where(q => q.ResourceId == id)
+                //.OrderBy(o => o.ValidFrom)
+                .OrderBy(o => o.Name)
+                .ThenBy(o => o.MiminumUnits)
+                .ToListAsync();
             if (model is null)
                 return NotFound();
 
@@ -82,6 +89,59 @@ namespace AzureApp.Server.Controllers
                 return NotFound();
 
             return Ok(model);
+        }
+
+        [HttpGet("copyto/{id}")]
+        public async Task<IActionResult> GetCopyTo(int id)
+        {
+            if (_context.Resources is null || _context.ResourceUnits is null || _dbset is null)
+                return StatusCode(500);
+
+            var rate = await _dbset
+                .Include(i => i.ResourceUnits)
+                .SingleAsync(q => q.Id == id);
+            if (rate is null || rate.ResourceUnits is null)
+                return StatusCode(500);
+            if (rate.ResourceUnits.Count == 0)
+                return Ok();
+
+            var resource = await _context.Resources
+                .Include(i => i.ResourceRates!
+                    .Where(q => q.Id != rate.Id && q.Name == rate.Name)
+                    //.OrderBy(o => o.ValidFrom)
+                    .OrderBy(o => o.Name)
+                    .ThenBy(o => o.MiminumUnits))
+                .ThenInclude(i => i.ResourceUnits)
+                .SingleAsync(q => q.Id == rate.ResourceId);
+            if (resource is null)
+                return StatusCode(500);
+            if (resource.ResourceRates is null || resource.ResourceRates.Count < 1)
+                return Ok();
+
+            for(int idex = 0; idex < resource.ResourceRates.Count; ++idex)
+            {
+                ResourceRate resxrate = resource.ResourceRates.ElementAt(idex);
+                if (resxrate.ResourceUnits is not null && resxrate.ResourceUnits.Count > 0)
+                    continue;
+
+                foreach(var unit in rate.ResourceUnits)
+                {
+                    ResourceUnit resxunit = new();
+                    resxunit.ResourceId = resxrate.ResourceId;
+                    resxunit.ResourceRateId = resxrate.Id;
+                    resxunit.SetupMeasureUnitId = unit.SetupMeasureUnitId;
+                    resxunit.SetupMeasureUnit = null!;
+                    resxunit.UnitOfMeasure = unit.UnitOfMeasure;
+                    resxunit.UnitFactor = unit.UnitFactor;
+                    resxunit.DefaultValue = unit.DefaultValue;
+                    resxunit.Description = unit.Description;
+                    await _context.ResourceUnits.AddAsync(resxunit);
+                }
+
+                await _context.SaveChangesAsync();
+            }
+
+            return Ok();
         }
 
         [HttpPost]

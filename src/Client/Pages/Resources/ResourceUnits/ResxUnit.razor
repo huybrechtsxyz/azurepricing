@@ -1,6 +1,7 @@
 ﻿@page "/resourceunit/{resxid:int}/{rateid:int}"
 @using AzureApp.Shared
 @inject HttpClient Http
+@inject NavigationManager NavigationManager
 
 <PageTitle>Resource Units</PageTitle>
 
@@ -22,7 +23,12 @@ else
     <a href="/resourceunit/@ResxId/@RateId/add" class="btn btn-primary" role="button">
         <span class="oi oi-plus" aria-hidden="true"></span> Create
     </a>
-    <button class="btn btn-primary" @onclick="CreateDefaults">Create Defaults</button>
+    <button class="btn btn-primary" @onclick="CreateDefaults">
+        <span class="oi oi-star" aria-hidden="true"></span> Create Defaults
+    </button>
+    <button class="btn btn-primary" @onclick="CopyToOthers">
+        <span class="oi oi-target" aria-hidden="true"></span> Copy To Others
+    </button>
 </p>
 
 @if (model is not null)
@@ -81,5 +87,11 @@ else
     {
         model = await Http.GetFromJsonAsync<ResourceUnit[]>($"{nameof(ResourceUnit)}/create/{@RateId}");
         StateHasChanged();
+    }
+
+    private async Task CopyToOthers()
+    {
+        await Http.GetAsync($"{nameof(ResourceRate)}/copyto/{@RateId}");
+        NavigationManager.NavigateTo($"/resourcerate/{ResxId}");
     }
 }

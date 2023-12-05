@@ -31,9 +31,15 @@
                     <td>@item.Name</td>
                     <td>@item.CurrencyCode</td>
                     <td>
-                        <a href="/projectsimulation/@item.Id" class="btn btn-outline-primary" role="button">Simulations</a>
-                        <a href="/projectdesign/@item.Id" class="btn btn-outline-primary" role="button">Designs</a>
-                        <a href="/projectscenario/@item.Id" class="btn btn-outline-primary" role="button">Scenarios</a>
+                        <a href="/projectsimulation/@item.Id" class="btn btn-outline-primary" role="button">
+                            <span class="oi oi-calculator" aria-hidden="true"></span> Simulations
+                        </a>
+                        <a href="/projectdesign/@item.Id" class="btn btn-outline-primary" role="button">
+                            <span class="oi oi-beaker" aria-hidden="true"></span> Designs
+                        </a>
+                        <a href="/projectscenario/@item.Id" class="btn btn-outline-primary" role="button">
+                            <span class="oi oi-crop" aria-hidden="true"></span> Scenarios
+                        </a>
                     </td>
                     <td>
                         <a href="/project/edit/@item.Id" class="btn btn-outline-dark" role="button">Edit</a>

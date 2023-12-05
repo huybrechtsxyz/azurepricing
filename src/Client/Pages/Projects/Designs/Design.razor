@@ -43,7 +43,9 @@ else
                     <td>@item.Description</td>
                     <td>@item.Environment</td>
                     <td>
-                        <a href="/projectcomponent/@ProjectId/@item.Id" class="btn btn-outline-primary" role="button">Components</a>
+                        <a href="/projectcomponent/@ProjectId/@item.Id" class="btn btn-outline-primary" role="button">
+                            <span class="oi oi-cog" aria-hidden="true"></span> Components
+                        </a>
                         <a href="/projectdesign/@ProjectId/edit/@item.Id" class="btn btn-outline-dark" role="button">Edit</a>
                         <a href="/projectdesign/@ProjectId/delete/@item.Id" class="btn btn-outline-dark" role="button">Delete</a>
                     </td>

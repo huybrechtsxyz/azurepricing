@@ -1,0 +1,185 @@
+﻿@page "/resourcerate/{ResxId:int}/edit/{id:int}"
+@using AzureApp.Shared
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+
+<PageTitle>Resource Rates</PageTitle>
+
+<h1>Resource Rates</h1>
+
+<p>Edit a resouce rate.</p>
+<p>
+    <a href="/resourcerate/@ResxId" class="btn btn-light" role="button">
+        <span class="oi oi-arrow-left" aria-hidden="true"></span> Cancel
+    </a>
+</p>
+
+@if (@model is not null)
+{
+    <EditForm EditContext="@editContext" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="mb-3">
+            <label for="Name" class="form-label">Name</label>
+            <InputText @bind-Value="model.Name" class="form-control" />
+            <ValidationMessage For="@(() => model.Name)" />
+        </div>
+        <div class="mb-3">
+            <label for="ValidFrom" class="form-label">Valid From</label>
+            <InputDate @bind-Value="model.ValidFrom" class="form-control" />
+            <ValidationMessage For="@(() => model.ValidFrom)" />
+        </div>
+        <div class="mb-3">
+            <label for="Service" class="form-label">Service</label>
+            <InputText @bind-Value="model.Service" class="form-control" disabled="true" />
+            <ValidationMessage For="@(() => model.Service)" />
+        </div>
+        <div class="mb-3">
+            <label for="Category" class="form-label">Category</label>
+            <InputText @bind-Value="model.Category" class="form-control" disabled="true" />
+            <ValidationMessage For="@(() => model.Category)" />
+        </div>
+        <div class="mb-3">
+            <label for="Region" class="form-label">Region</label>
+            <InputText @bind-Value="model.Region" class="form-control" disabled="true" />
+            <ValidationMessage For="@(() => model.Region)" disabled="true" />
+        </div>
+        <div class="mb-3">
+            <label for="Location" class="form-label">Location</label>
+            <InputSelect @bind-Value="model.Location" class="form-control">
+                @if (locations is not null && locations.Length > 0)
+                {
+                    foreach (var option in locations)
+                    {
+                        <option value="@option.Name">@option.Name</option>
+                    }
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => model.Location)" />
+        </div>
+        <div class="mb-3">
+            <label for="CurrencyCode" class="form-label">Currency</label>
+            <InputSelect @bind-Value="model.CurrencyCode" class="form-control">
+                @if (currencies is not null && currencies.Length > 0)
+                {
+                    foreach (var option in currencies)
+                    {
+                        <option value="@option.Code">@option.Code</option>
+                    }
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => model.CurrencyCode)" />
+        </div>
+        <div class="mb-3">
+            <label for="RetailPrice" class="form-label">Retail Price</label>
+            <InputNumber @bind-Value="model.RetailPrice" class="form-control" />
+            <ValidationMessage For="@(() => model.RetailPrice)" />
+        </div>
+        <div class="mb-3">
+            <label for="UnitPrice" class="form-label">Unit Price</label>
+            <InputNumber @bind-Value="model.UnitPrice" class="form-control" />
+            <ValidationMessage For="@(() => model.UnitPrice)" />
+        </div>
+        <div class="mb-3">
+            <label for="MiminumUnits" class="form-label">Miminum Units</label>
+            <InputNumber @bind-Value="model.MiminumUnits" class="form-control" />
+            <ValidationMessage For="@(() => model.MiminumUnits)" />
+        </div>
+        <div class="mb-3">
+            <label for="UnitOfMeasure" class="form-label">Unit Of Measure</label>
+            <InputText @bind-Value="model.UnitOfMeasure" class="form-control" />
+            <ValidationMessage For="@(() => model.UnitOfMeasure)" />
+        </div>
+        <div class="mb-3">
+            <label for="Product" class="form-label">Product</label>
+            <InputText @bind-Value="model.Product" class="form-control" disabled="true"/>
+            <ValidationMessage For="@(() => model.Product)" />
+        </div>
+        <div class="mb-3">
+            <label for="MeterName" class="form-label">Meter</label>
+            <InputText @bind-Value="model.MeterName" class="form-control" disabled="true" />
+            <ValidationMessage For="@(() => model.MeterName)" />
+        </div>
+        <div class="mb-3">
+            <label for="Sku" class="form-label">Sku</label>
+            <InputText @bind-Value="model.Sku" class="form-control" disabled="true" />
+            <ValidationMessage For="@(() => model.Sku)" disabled="true"/>
+        </div>
+        <div class="mb-3">
+            <label for="Type" class="form-label">Type</label>
+            <InputText @bind-Value="model.Type" class="form-control" />
+            <ValidationMessage For="@(() => model.Type)" />
+        </div>
+        <div class="mb-3">
+            <label for="IsPrimaryRegion" class="form-label">Is Primary Region?</label>
+            <InputCheckbox @bind-Value="model.IsPrimaryRegionNN" class="form-check" disabled="true" />
+            <ValidationMessage For="@(() => model.IsPrimaryRegion)" />
+        </div>
+        <div>
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button class="btn btn-light" @onclick="CancelItem">Cancel</button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    private EditContext? editContext { get; set; }
+    private ValidationMessageStore? messageStore { get; set; }
+    private AzureApp.Shared.ResourceRate? model { get; set; }
+
+    private SetupLocation[]? locations = null!;
+    private SetupCurrency[]? currencies = null!;
+
+    [Parameter]
+    public int? ResxId { get; set; }
+
+    [Parameter]
+    public int? Id { get; set; }
+
+    protected async override void OnInitialized()
+    {
+        locations = await Http.GetFromJsonAsync<SetupLocation[]>($"{nameof(ResourceRate)}/locations") ?? Array.Empty<SetupLocation>();
+        currencies = await Http.GetFromJsonAsync<SetupCurrency[]>($"{nameof(ResourceRate)}/currencies") ?? Array.Empty<SetupCurrency>();
+        model = await Http.GetFromJsonAsync<ResourceRate>($"{nameof(ResourceRate)}/details/{Id}") ?? new();
+        editContext = new(model);
+        messageStore = new(editContext);
+        StateHasChanged();
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (model is null || editContext is null)
+            return;
+
+        var response = await Http.PutAsJsonAsync<AzureApp.Shared.ResourceRate>(nameof(AzureApp.Shared.ResourceRate), model);
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo($"/resourcerate/{ResxId}");
+            return;
+        }
+
+        if (messageStore is not null && editContext is not null)
+        {
+            var errors = await response.Content.ReadFromJsonAsync<Dictionary<string, List<string>>>() ?? new();
+            if (errors.Any())
+            {
+                foreach (var keyValuePair in errors)
+                {
+                    foreach (var msg in keyValuePair.Value)
+                    {
+                        messageStore.Add(editContext.Field(keyValuePair.Key), msg);
+                    }
+                }
+            }
+
+            editContext.Validate();
+        }
+
+        StateHasChanged();
+    }
+
+    private void CancelItem()
+    {
+        NavigationManager.NavigateTo($"/resourcerate/{ResxId}");
+    }
+}

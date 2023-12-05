@@ -35,7 +35,8 @@ namespace AzureApp.Server.Controllers
 
             var model = await _dbset
                 .Include(i => i.ProjectDesign)
-                .Where(q => q.ProjectId == id).OrderBy(o => o.Name).ToListAsync();
+                .Where(q => q.ProjectId == id)
+                .OrderBy(o => o.Name).ToListAsync();
             return Ok(model);
         }
 
